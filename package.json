@@ -1,0 +1,11 @@
+{
+  "name": "aqsa-view",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Walkable 3D model of al-Masjid al-Aqsa with a timeline from 638 CE to today",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}

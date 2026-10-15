@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Al-Aqsa Through Time</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* Layout: full-bleed 3D scene; HUD panels pinned to the corners like the
+   instruments of a guide's tablet; the timeline runs along the bottom. */
+:root {
+  color-scheme: dark;
+  --ink: #f3ecdc;          /* Jerusalem-stone light text */
+  --ink-dim: #c9bfa9;
+  --glass: rgba(24, 21, 17, 0.72);
+  --glass-hi: rgba(40, 34, 26, 0.86);
+  --line: rgba(233, 214, 170, 0.22);
+  --gold: #d9ac43;         /* the dome */
+  --tile: #2d68b3;         /* Ottoman tile blue */
+  --tile-hi: #5a9ad6;
+  --font-display: "Reem Kufi", "Amiri", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ar: "Amiri", "Noto Naskh Arabic", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r: 10px;
+  --gap: 12px;
+  --st: env(safe-area-inset-top, 0px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --sl: max(12px, env(safe-area-inset-left, 0px));
+  --sr: max(12px, env(safe-area-inset-right, 0px));
+}
+html, body { height: 100%; margin: 0; overflow: hidden; background: #1c1814; color: var(--ink); font: 14px/1.45 var(--font-body); }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.panel { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.ar { font-family: var(--font-ar); direction: rtl; }
+[hidden] { display: none !important; }
+
+/* top-left: title + year */
+#brand { position: fixed; top: calc(var(--st) + 12px); left: var(--sl); padding: 12px 16px 12px; display: grid; gap: 2px; max-width: min(360px, calc(100vw - 32px)); pointer-events: none; }
+#brand h1 { margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font: 700 22px/1.1 var(--font-display); letter-spacing: 0.01em; }
+#brand h1 .ar { font: 700 24px/1 var(--font-display); color: var(--gold); }
+#yearRow { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+#yearNum { font: 500 40px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+#yearRow .ce { font: 500 12px var(--font-mono); color: var(--ink-dim); }
+#yearAh { font: 400 13px var(--font-mono); color: var(--gold); }
+#eraDyn { justify-self: start; margin-top: 4px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: var(--tile); padding: 3px 8px; border-radius: 999px; }
+
+/* top-right: tools + map */
+#tools { position: fixed; top: calc(var(--st) + 12px); right: var(--sr); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+#toolRow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn { background: var(--glass-hi); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; min-height: 36px; }
+.btn:hover { border-color: var(--gold); }
+.btn[aria-pressed="true"] { background: var(--tile); border-color: var(--tile-hi); }
+select.btn { max-width: 220px; appearance: none; padding-right: 26px; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+select.btn option { background: #2a241c; color: var(--ink); }
+#mapWrap { width: 228px; padding: 8px; display: grid; gap: 6px; }
+#mapHead { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); }
+#mapHead button { background: none; border: 0; color: var(--ink-dim); padding: 2px 4px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+#map { width: 100%; aspect-ratio: 450 / 535; display: block; border-radius: 6px; cursor: crosshair; max-width: 100%; }
+#mapWrap.collapsed #map, #mapWrap.collapsed #coords { display: none; }
+#coords { font: 11px var(--font-mono); color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+
+/* left: era story */
+#info { position: fixed; left: var(--sl); top: calc(var(--st) + 168px); width: min(340px, calc(100vw - 32px)); max-height: calc(100% - var(--st) - var(--sb) - 340px); overflow: auto; padding: 14px 16px; display: grid; gap: 8px; }
+#info h2 { margin: 0; font: 700 18px/1.25 var(--font-display); text-wrap: balance; }
+#info p { margin: 0; color: var(--ink-dim); }
+#info.collapsed #eraBody { display: none; }
+#infoToggle { justify-self: start; background: none; border: 0; padding: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+#eraNewWrap h3 { margin: 4px 0 6px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); font-weight: 500; }
+#eraNew { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#eraNew button { width: 100%; display: flex; justify-content: space-between; gap: 10px; text-align: left; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+#eraNew button:hover { border-color: var(--gold); }
+#eraNew .ar { color: var(--gold); white-space: nowrap; }
+
+/* near a landmark */
+#near { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sb) + 150px); width: min(460px, calc(100vw - 32px)); padding: 12px 16px; display: grid; gap: 4px; border-left: 3px solid var(--gold); pointer-events: none; }
+#near .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+#nearName { font: 700 17px/1.2 var(--font-display); }
+#nearAr { font-size: 20px; color: var(--gold); }
+#nearBuilt { font: 12px var(--font-mono); color: var(--tile-hi); }
+#nearText { margin: 0; color: var(--ink-dim); font-size: 13px; }
+
+/* bottom: timeline */
+#timeline { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px var(--sr) calc(var(--sb) + 10px) var(--sl); background: linear-gradient(to top, rgba(20, 17, 13, 0.92), rgba(20, 17, 13, 0.66) 70%, transparent); display: grid; gap: 8px; }
+#trackRow { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; }
+.round { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; background: var(--glass-hi); border: 1px solid var(--line); font-size: 16px; }
+.round:hover { border-color: var(--gold); }
+#track { position: relative; height: 38px; display: flex; align-items: center; min-width: 0; }
+#ticks { position: absolute; left: 9px; right: 9px; top: 50%; height: 14px; transform: translateY(-50%); pointer-events: none; }
+.tick { position: absolute; width: 2px; height: 14px; background: var(--gold); opacity: 0.7; transform: translateX(-1px); }
+#slider { width: 100%; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; height: 38px; position: relative; }
+#slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #5c7d5a, var(--tile) 55%, var(--gold)); }
+#slider::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #5c7d5a, var(--tile) 55%, var(--gold)); }
+#slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--ink); border: 3px solid var(--gold); }
+#slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 3px solid var(--gold); }
+#playBtn { min-width: 112px; }
+#chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; scroll-snap-type: x proximity; }
+#chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; scroll-snap-align: center; display: grid; gap: 0; text-align: left; padding: 5px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); }
+.chip b { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.chip span { font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+.chip.on { background: var(--tile); border-color: var(--tile-hi); }
+.chip.on span { color: #fff; }
+
+/* crosshair + touch controls */
+#cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255, 245, 220, 0.75); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); pointer-events: none; }
+#joy { position: fixed; left: calc(var(--sl) + 8px); bottom: calc(var(--sb) + 130px); width: 112px; height: 112px; border-radius: 50%; background: rgba(24, 21, 17, 0.4); border: 1px solid var(--line); display: none; place-items: center; touch-action: none; }
+#knob { width: 46px; height: 46px; border-radius: 50%; background: rgba(243, 236, 220, 0.85); border: 3px solid var(--gold); pointer-events: none; }
+#touchBtns { position: fixed; right: calc(var(--sr) + 8px); bottom: calc(var(--sb) + 140px); display: none; flex-direction: column; gap: 10px; }
+#touchBtns .round { width: 52px; height: 52px; font-size: 13px; }
+#upBtn, #downBtn { display: none; }
+body.fly #upBtn, body.fly #downBtn { display: grid; }
+body.fly #jumpBtn { display: none; }
+@media (pointer: coarse) {
+  #joy { display: grid; }
+  #touchBtns { display: flex; }
+  #cross { display: none; }
+}
+#hint { position: fixed; left: 50%; top: calc(var(--st) + 14px); transform: translateX(-50%); font-size: 12px; color: var(--ink-dim); padding: 6px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); white-space: nowrap; pointer-events: none; }
+body.locked #hint { display: none; }
+
+/* help + loading */
+#help { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 8, 6, 0.6); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); z-index: 5; }
+#help .panel { max-width: 560px; width: 100%; max-height: 90%; overflow: auto; padding: 20px 22px; display: grid; gap: 12px; background: var(--glass-hi); }
+#help h2 { margin: 0; font: 700 20px var(--font-display); }
+#help dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+#help dt { font: 500 12px var(--font-mono); color: var(--gold); white-space: nowrap; }
+#help dd { margin: 0; color: var(--ink-dim); }
+#help p { margin: 0; color: var(--ink-dim); font-size: 13px; }
+kbd { font: 12px var(--font-mono); }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: #1c1814; z-index: 10; text-align: center; padding: 24px; }
+#loading .ar { font: 700 44px var(--font-display); color: var(--gold); }
+#loadingText { color: var(--ink-dim); margin-top: 8px; }
+
+@media (max-width: 720px) {
+  #brand { right: var(--sr); max-width: none; padding: 8px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #brand h1 .en { display: none; }
+  #brand h1 .ar { font-size: 20px; }
+  #yearRow { margin-top: 0; }
+  #yearNum { font-size: 26px; }
+  #eraDyn, #yearRow .ce, #mapHead .long { display: none; }
+  #tools { top: calc(var(--st) + 66px); }
+  #info { top: auto; bottom: calc(var(--sb) + 132px); max-height: 40%; left: var(--sl); right: var(--sr); width: auto; }
+  #near { bottom: calc(var(--sb) + 260px); }
+  #mapWrap { width: 150px; }
+  #hint { display: none; }
+  #playBtn { min-width: 0; padding: 7px 10px; }
+  select.btn { max-width: 150px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="0" aria-label="3D view of al-Masjid al-Aqsa"></canvas>
+<div id="cross"></div>
+
+<header id="brand" class="panel">
+  <h1><span class="ar" lang="ar">المسجد الأقصى</span><span class="en">Al-Aqsa</span></h1>
+  <div id="yearRow"><span id="yearNum">2026</span><span class="ce">CE</span><span id="yearAh"></span></div>
+  <span id="eraDyn"></span>
+</header>
+
+<div id="hint">Click the view to walk · <kbd>WASD</kbd> move · mouse look · <kbd>F</kbd> fly · <kbd>H</kbd> help</div>
+
+<div id="tools">
+  <div id="toolRow">
+    <select id="goto" class="btn" aria-label="Go to a place"><option value="">Go to…</option></select>
+    <button id="modeBtn" class="btn" type="button" aria-pressed="true">Flying</button>
+    <button id="helpBtn" class="btn" type="button" aria-label="Help">?</button>
+  </div>
+  <div id="mapWrap" class="panel">
+    <div id="mapHead"><span>Site plan<span class="long"> · tap to go</span></span><button id="mapToggle" type="button">Hide</button></div>
+    <canvas id="map" width="456" height="542" aria-label="Site plan of the compound"></canvas>
+    <div id="coords"></div>
+  </div>
+</div>
+
+<section id="info" class="panel" aria-live="polite">
+  <button id="infoToggle" type="button">This era</button>
+  <div id="eraBody">
+    <h2 id="eraTitle"></h2>
+    <p id="eraText"></p>
+    <div id="eraNewWrap">
+      <h3>Built in this era</h3>
+      <ul id="eraNew"></ul>
+    </div>
+  </div>
+</section>
+
+<aside id="near" class="panel" hidden>
+  <div class="top"><span id="nearName"></span><span id="nearAr" class="ar" lang="ar"></span></div>
+  <span id="nearBuilt"></span>
+  <p id="nearText"></p>
+</aside>
+
+<div id="joy" aria-hidden="true"><div id="knob"></div></div>
+<div id="touchBtns">
+  <button id="upBtn" class="round" type="button" aria-label="Fly up">▲</button>
+  <button id="downBtn" class="round" type="button" aria-label="Fly down">▼</button>
+  <button id="jumpBtn" class="round" type="button" aria-label="Jump">Jump</button>
+</div>
+
+<footer id="timeline">
+  <div id="trackRow">
+    <button id="prevEra" class="round" type="button" aria-label="Previous era">‹</button>
+    <div id="track"><div id="ticks"></div><input id="slider" type="range" min="638" max="2026" step="1" value="2026" aria-label="Year"></div>
+    <button id="nextEra" class="round" type="button" aria-label="Next era">›</button>
+    <button id="playBtn" class="btn" type="button">Play history</button>
+  </div>
+  <div id="chips" role="list"></div>
+</footer>
+
+<div id="help" hidden>
+  <div class="panel" role="dialog" aria-labelledby="helpTitle">
+    <h2 id="helpTitle">Walking the sanctuary</h2>
+    <dl>
+      <dt>Click / tap view</dt><dd>Start looking around (Esc releases the mouse)</dd>
+      <dt>W A S D · arrows</dt><dd>Move. Hold Shift to run</dd>
+      <dt>Space</dt><dd>Jump when walking, rise when flying</dd>
+      <dt>F</dt><dd>Switch between walking and flying freely</dd>
+      <dt>E / Q</dt><dd>Fly up / down</dd>
+      <dt>[ and ]</dt><dd>Previous / next era</dd>
+      <dt>M</dt><dd>Show or hide the site plan</dd>
+      <dt>Phone</dt><dd>Left stick to move, drag anywhere to look</dd>
+    </dl>
+    <p>The whole enclosure of about 144 dunams, with its domes, prayer halls, courtyards and gardens, is al-Masjid al-Aqsa. Wall lengths, the Dome of the Rock’s octagon and the positions of the buildings follow published surveys. Earlier eras (Umar’s timber mosque, the Umayyad and Abbasid mosques) are reconstructions from historical descriptions, so their details are approximate.</p>
+    <button id="helpClose" class="btn" type="button">Back to the view</button>
+  </div>
+</div>
+
+<div id="loading">
+  <div>
+    <div class="ar" lang="ar">المسجد الأقصى</div>
+    <div id="loadingText">Building the sanctuary…</div>
+  </div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

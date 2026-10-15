@@ -1,0 +1,3018 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Al-Aqsa Through Time</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* Layout: full-bleed 3D scene; HUD panels pinned to the corners like the
+   instruments of a guide's tablet; the timeline runs along the bottom. */
+:root {
+  color-scheme: dark;
+  --ink: #f3ecdc;          /* Jerusalem-stone light text */
+  --ink-dim: #c9bfa9;
+  --glass: rgba(24, 21, 17, 0.72);
+  --glass-hi: rgba(40, 34, 26, 0.86);
+  --line: rgba(233, 214, 170, 0.22);
+  --gold: #d9ac43;         /* the dome */
+  --tile: #2d68b3;         /* Ottoman tile blue */
+  --tile-hi: #5a9ad6;
+  --font-display: "Reem Kufi", "Amiri", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ar: "Amiri", "Noto Naskh Arabic", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r: 10px;
+  --gap: 12px;
+  --st: env(safe-area-inset-top, 0px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --sl: max(12px, env(safe-area-inset-left, 0px));
+  --sr: max(12px, env(safe-area-inset-right, 0px));
+}
+html, body { height: 100%; margin: 0; overflow: hidden; background: #1c1814; color: var(--ink); font: 14px/1.45 var(--font-body); }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.panel { background: var(--glass); border: 1px solid var(--line); border-radius: var(--r); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.ar { font-family: var(--font-ar); direction: rtl; }
+[hidden] { display: none !important; }
+
+/* top-left: title + year */
+#brand { position: fixed; top: calc(var(--st) + 12px); left: var(--sl); padding: 12px 16px 12px; display: grid; gap: 2px; max-width: min(360px, calc(100vw - 32px)); pointer-events: none; }
+#brand h1 { margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font: 700 22px/1.1 var(--font-display); letter-spacing: 0.01em; }
+#brand h1 .ar { font: 700 24px/1 var(--font-display); color: var(--gold); }
+#yearRow { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+#yearNum { font: 500 40px/1 var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+#yearRow .ce { font: 500 12px var(--font-mono); color: var(--ink-dim); }
+#yearAh { font: 400 13px var(--font-mono); color: var(--gold); }
+#eraDyn { justify-self: start; margin-top: 4px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: var(--tile); padding: 3px 8px; border-radius: 999px; }
+
+/* top-right: tools + map */
+#tools { position: fixed; top: calc(var(--st) + 12px); right: var(--sr); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+#toolRow { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn { background: var(--glass-hi); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; min-height: 36px; }
+.btn:hover { border-color: var(--gold); }
+.btn[aria-pressed="true"] { background: var(--tile); border-color: var(--tile-hi); }
+select.btn { max-width: 220px; appearance: none; padding-right: 26px; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+select.btn option { background: #2a241c; color: var(--ink); }
+#mapWrap { width: 228px; padding: 8px; display: grid; gap: 6px; }
+#mapHead { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); }
+#mapHead button { background: none; border: 0; color: var(--ink-dim); padding: 2px 4px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+#map { width: 100%; aspect-ratio: 450 / 535; display: block; border-radius: 6px; cursor: crosshair; max-width: 100%; }
+#mapWrap.collapsed #map, #mapWrap.collapsed #coords { display: none; }
+#coords { font: 11px var(--font-mono); color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+
+/* left: era story */
+#info { position: fixed; left: var(--sl); top: calc(var(--st) + 168px); width: min(340px, calc(100vw - 32px)); max-height: calc(100% - var(--st) - var(--sb) - 340px); overflow: auto; padding: 14px 16px; display: grid; gap: 8px; }
+#info h2 { margin: 0; font: 700 18px/1.25 var(--font-display); text-wrap: balance; }
+#info p { margin: 0; color: var(--ink-dim); }
+#info.collapsed #eraBody { display: none; }
+#infoToggle { justify-self: start; background: none; border: 0; padding: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+#eraNewWrap h3 { margin: 4px 0 6px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-dim); font-weight: 500; }
+#eraNew { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#eraNew button { width: 100%; display: flex; justify-content: space-between; gap: 10px; text-align: left; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; }
+#eraNew button:hover { border-color: var(--gold); }
+#eraNew .ar { color: var(--gold); white-space: nowrap; }
+
+/* near a landmark */
+#near { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--sb) + 150px); width: min(460px, calc(100vw - 32px)); padding: 12px 16px; display: grid; gap: 4px; border-left: 3px solid var(--gold); pointer-events: none; }
+#near .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+#nearName { font: 700 17px/1.2 var(--font-display); }
+#nearAr { font-size: 20px; color: var(--gold); }
+#nearBuilt { font: 12px var(--font-mono); color: var(--tile-hi); }
+#nearText { margin: 0; color: var(--ink-dim); font-size: 13px; }
+
+/* bottom: timeline */
+#timeline { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px var(--sr) calc(var(--sb) + 10px) var(--sl); background: linear-gradient(to top, rgba(20, 17, 13, 0.92), rgba(20, 17, 13, 0.66) 70%, transparent); display: grid; gap: 8px; }
+#trackRow { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; }
+.round { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; background: var(--glass-hi); border: 1px solid var(--line); font-size: 16px; }
+.round:hover { border-color: var(--gold); }
+#track { position: relative; height: 38px; display: flex; align-items: center; min-width: 0; }
+#ticks { position: absolute; left: 9px; right: 9px; top: 50%; height: 14px; transform: translateY(-50%); pointer-events: none; }
+.tick { position: absolute; width: 2px; height: 14px; background: var(--gold); opacity: 0.7; transform: translateX(-1px); }
+#slider { width: 100%; margin: 0; appearance: none; -webkit-appearance: none; background: transparent; height: 38px; position: relative; }
+#slider::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #5c7d5a, var(--tile) 55%, var(--gold)); }
+#slider::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #5c7d5a, var(--tile) 55%, var(--gold)); }
+#slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--ink); border: 3px solid var(--gold); }
+#slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 3px solid var(--gold); }
+#playBtn { min-width: 112px; }
+#chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; scroll-snap-type: x proximity; }
+#chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; scroll-snap-align: center; display: grid; gap: 0; text-align: left; padding: 5px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); }
+.chip b { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.chip span { font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+.chip.on { background: var(--tile); border-color: var(--tile-hi); }
+.chip.on span { color: #fff; }
+
+/* crosshair + touch controls */
+#cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255, 245, 220, 0.75); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); pointer-events: none; }
+#joy { position: fixed; left: calc(var(--sl) + 8px); bottom: calc(var(--sb) + 130px); width: 112px; height: 112px; border-radius: 50%; background: rgba(24, 21, 17, 0.4); border: 1px solid var(--line); display: none; place-items: center; touch-action: none; }
+#knob { width: 46px; height: 46px; border-radius: 50%; background: rgba(243, 236, 220, 0.85); border: 3px solid var(--gold); pointer-events: none; }
+#touchBtns { position: fixed; right: calc(var(--sr) + 8px); bottom: calc(var(--sb) + 140px); display: none; flex-direction: column; gap: 10px; }
+#touchBtns .round { width: 52px; height: 52px; font-size: 13px; }
+#upBtn, #downBtn { display: none; }
+body.fly #upBtn, body.fly #downBtn { display: grid; }
+body.fly #jumpBtn { display: none; }
+@media (pointer: coarse) {
+  #joy { display: grid; }
+  #touchBtns { display: flex; }
+  #cross { display: none; }
+}
+#hint { position: fixed; left: 50%; top: calc(var(--st) + 14px); transform: translateX(-50%); font-size: 12px; color: var(--ink-dim); padding: 6px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); white-space: nowrap; pointer-events: none; }
+body.locked #hint { display: none; }
+
+/* help + loading */
+#help { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 8, 6, 0.6); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); z-index: 5; }
+#help .panel { max-width: 560px; width: 100%; max-height: 90%; overflow: auto; padding: 20px 22px; display: grid; gap: 12px; background: var(--glass-hi); }
+#help h2 { margin: 0; font: 700 20px var(--font-display); }
+#help dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+#help dt { font: 500 12px var(--font-mono); color: var(--gold); white-space: nowrap; }
+#help dd { margin: 0; color: var(--ink-dim); }
+#help p { margin: 0; color: var(--ink-dim); font-size: 13px; }
+kbd { font: 12px var(--font-mono); }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: #1c1814; z-index: 10; text-align: center; padding: 24px; }
+#loading .ar { font: 700 44px var(--font-display); color: var(--gold); }
+#loadingText { color: var(--ink-dim); margin-top: 8px; }
+
+@media (max-width: 720px) {
+  #brand { right: var(--sr); max-width: none; padding: 8px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #brand h1 .en { display: none; }
+  #brand h1 .ar { font-size: 20px; }
+  #yearRow { margin-top: 0; }
+  #yearNum { font-size: 26px; }
+  #eraDyn, #yearRow .ce, #mapHead .long { display: none; }
+  #tools { top: calc(var(--st) + 66px); }
+  #info { top: auto; bottom: calc(var(--sb) + 132px); max-height: 40%; left: var(--sl); right: var(--sr); width: auto; }
+  #near { bottom: calc(var(--sb) + 260px); }
+  #mapWrap { width: 150px; }
+  #hint { display: none; }
+  #playBtn { min-width: 0; padding: 7px 10px; }
+  select.btn { max-width: 150px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="0" aria-label="3D view of al-Masjid al-Aqsa"></canvas>
+<div id="cross"></div>
+
+<header id="brand" class="panel">
+  <h1><span class="ar" lang="ar">المسجد الأقصى</span><span class="en">Al-Aqsa</span></h1>
+  <div id="yearRow"><span id="yearNum">2026</span><span class="ce">CE</span><span id="yearAh"></span></div>
+  <span id="eraDyn"></span>
+</header>
+
+<div id="hint">Click the view to walk · <kbd>WASD</kbd> move · mouse look · <kbd>F</kbd> fly · <kbd>H</kbd> help</div>
+
+<div id="tools">
+  <div id="toolRow">
+    <select id="goto" class="btn" aria-label="Go to a place"><option value="">Go to…</option></select>
+    <button id="modeBtn" class="btn" type="button" aria-pressed="true">Flying</button>
+    <button id="helpBtn" class="btn" type="button" aria-label="Help">?</button>
+  </div>
+  <div id="mapWrap" class="panel">
+    <div id="mapHead"><span>Site plan<span class="long"> · tap to go</span></span><button id="mapToggle" type="button">Hide</button></div>
+    <canvas id="map" width="456" height="542" aria-label="Site plan of the compound"></canvas>
+    <div id="coords"></div>
+  </div>
+</div>
+
+<section id="info" class="panel" aria-live="polite">
+  <button id="infoToggle" type="button">This era</button>
+  <div id="eraBody">
+    <h2 id="eraTitle"></h2>
+    <p id="eraText"></p>
+    <div id="eraNewWrap">
+      <h3>Built in this era</h3>
+      <ul id="eraNew"></ul>
+    </div>
+  </div>
+</section>
+
+<aside id="near" class="panel" hidden>
+  <div class="top"><span id="nearName"></span><span id="nearAr" class="ar" lang="ar"></span></div>
+  <span id="nearBuilt"></span>
+  <p id="nearText"></p>
+</aside>
+
+<div id="joy" aria-hidden="true"><div id="knob"></div></div>
+<div id="touchBtns">
+  <button id="upBtn" class="round" type="button" aria-label="Fly up">▲</button>
+  <button id="downBtn" class="round" type="button" aria-label="Fly down">▼</button>
+  <button id="jumpBtn" class="round" type="button" aria-label="Jump">Jump</button>
+</div>
+
+<footer id="timeline">
+  <div id="trackRow">
+    <button id="prevEra" class="round" type="button" aria-label="Previous era">‹</button>
+    <div id="track"><div id="ticks"></div><input id="slider" type="range" min="638" max="2026" step="1" value="2026" aria-label="Year"></div>
+    <button id="nextEra" class="round" type="button" aria-label="Next era">›</button>
+    <button id="playBtn" class="btn" type="button">Play history</button>
+  </div>
+  <div id="chips" role="list"></div>
+</footer>
+
+<div id="help" hidden>
+  <div class="panel" role="dialog" aria-labelledby="helpTitle">
+    <h2 id="helpTitle">Walking the sanctuary</h2>
+    <dl>
+      <dt>Click / tap view</dt><dd>Start looking around (Esc releases the mouse)</dd>
+      <dt>W A S D · arrows</dt><dd>Move. Hold Shift to run</dd>
+      <dt>Space</dt><dd>Jump when walking, rise when flying</dd>
+      <dt>F</dt><dd>Switch between walking and flying freely</dd>
+      <dt>E / Q</dt><dd>Fly up / down</dd>
+      <dt>[ and ]</dt><dd>Previous / next era</dd>
+      <dt>M</dt><dd>Show or hide the site plan</dd>
+      <dt>Phone</dt><dd>Left stick to move, drag anywhere to look</dd>
+    </dl>
+    <p>The whole enclosure of about 144 dunams, with its domes, prayer halls, courtyards and gardens, is al-Masjid al-Aqsa. Wall lengths, the Dome of the Rock’s octagon and the positions of the buildings follow published surveys. Earlier eras (Umar’s timber mosque, the Umayyad and Abbasid mosques) are reconstructions from historical descriptions, so their details are approximate.</p>
+    <button id="helpClose" class="btn" type="button">Back to the view</button>
+  </div>
+</div>
+
+<div id="loading">
+  <div>
+    <div class="ar" lang="ar">المسجد الأقصى</div>
+    <div id="loadingText">Building the sanctuary…</div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+// ---- site.js ----
+// Site frame and shared registry.
+//
+// Site coordinates: X metres east and Y metres north of the compound's
+// south-west corner. Three.js world: x = X - CX, z = -(Y - CY), y = up.
+// Wall lengths follow the published survey of al-Haram al-Sharif:
+// west 491 m, east 462 m, north 310 m, south 281 m (about 144 dunams).
+
+const CX = 140;
+const CY = 245;
+
+const COMPOUND = [
+  [0, 0],      // SW corner
+  [280, 0],    // SE corner
+  [295, 470],  // NE corner
+  [-15, 490],  // NW corner
+];
+
+const westX = (Y) => -15 * (Y / 490);
+const eastX = (Y) => 280 + 15 * (Y / 470);
+const northY = (X) => 490 - 20 * ((X + 15) / 310);
+
+function toWorld(X, Y) {
+  return { x: X - CX, z: -(Y - CY) };
+}
+function toSite(x, z) {
+  return { X: x + CX, Y: -z + CY };
+}
+
+function insideCompound(X, Y) {
+  return Y >= 0 && Y <= northY(X) && X >= westX(Y) && X <= eastX(Y);
+}
+
+const sstep = (a, b, v) => {
+  const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
+
+// Height of the land outside the compound, relative to the compound's
+// courtyard (0). The Old City streets to the north and west are close to
+// courtyard level; the land falls away to the south (Ophel) and east (the
+// Kidron valley) and rises again to the Mount of Olives.
+function terrainH(X, Y) {
+  if (insideCompound(X, Y)) return -3;
+  let h = 0;
+  const de = X - eastX(Math.min(470, Math.max(0, Y)));
+  if (de > 0) h += -48 * sstep(0, 160, de) + 135 * sstep(230, 760, de);
+  if (Y < 0) {
+    const ds = -Y;
+    h += -14 * sstep(0, 35, ds) - 0.16 * Math.max(0, ds - 35);
+  }
+  // The low ground along the outside of the west wall (al-Buraq wall),
+  // the site of the Mughrabi Quarter and, since 1967, a plaza.
+  if (X < westX(Y)) {
+    const mx = sstep(-140, -120, X);
+    const my = sstep(-5, 15, Y) * (1 - sstep(145, 165, Y));
+    h += -12 * mx * my;
+  }
+  if (Y > 490) h += 6 * sstep(490, 700, Y);
+  if (X < -60) h += 6 * sstep(-60, -500, X);
+  return h;
+}
+
+// Shared registry filled by the builders and read by the engine.
+const R = {
+  eraObjs: [],     // objects with userData.from / userData.to
+  landmarks: [],   // { id, name, ar, built, from, to, X, Y, r, text, h }
+  circles: [],     // tree trunks: { x, z, r }
+  boxes: [],       // houses: { x0, x1, z0, z1, top, from, to }
+  minimap: [],     // drawing commands for the minimap
+};
+
+function era(obj, from = -Infinity, to = Infinity) {
+  obj.userData.from = from;
+  obj.userData.to = to;
+  R.eraObjs.push(obj);
+  return obj;
+}
+
+function landmark(o) {
+  R.landmarks.push({ from: -Infinity, to: Infinity, r: 25, h: 0, ...o });
+}
+
+function inEra(o, year) {
+  return year >= (o.from ?? -Infinity) && year < (o.to ?? Infinity);
+}
+
+// ---- textures.js ----
+// Procedural canvas textures. Every texture is authored for a known size in
+// metres so geometry with metre-based UVs maps it 1:1 (repeat = 1 / size).
+
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+// Surah Ya-Sin 36:1-4, verified text (quran.ai, ar-imlaei edition). The Ottoman
+// tile frieze along the top of the Dome of the Rock carries Surah Ya-Sin.
+const YASIN = 'يس ۝ وَالْقُرْآنِ الْحَكِيمِ ۝ إِنَّكَ لَمِنَ الْمُرْسَلِينَ ۝ عَلَىٰ صِرَاطٍ مُّسْتَقِيمٍ ۝';
+
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  return c;
+}
+
+function finish(canvas, metresW, metresH, { color = true, aniso = 8 } = {}) {
+  const t = new THREE.CanvasTexture(canvas);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(1 / metresW, 1 / metresH);
+  if (color) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = aniso;
+  return t;
+}
+
+function grain(g, w, h, amount, r) {
+  const img = g.getImageData(0, 0, w, h);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = (r() - 0.5) * amount;
+    d[i] += v;
+    d[i + 1] += v;
+    d[i + 2] += v * 0.9;
+  }
+  g.putImageData(img, 0, 0);
+}
+
+function shade(hex, f) {
+  const c = new THREE.Color(hex);
+  c.offsetHSL(0, 0, f);
+  return '#' + c.getHexString();
+}
+
+// Jerusalem limestone ashlar: 4 m x 4 m tile, 0.5 m courses.
+function ashlar(seed, base, { course = 0.5, minL = 0.7, maxL = 1.6, mortar = '#efe4cc', size = 4, px = 512, rough = 26 } = {}) {
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(seed);
+  const s = px / size;
+  g.fillStyle = mortar;
+  g.fillRect(0, 0, px, px);
+  for (let y = 0; y < size - 1e-6; y += course) {
+    let x = -r() * maxL;
+    while (x < size) {
+      const L = minL + r() * (maxL - minL);
+      const tone = (r() - 0.5) * 0.09;
+      g.fillStyle = shade(base, tone);
+      g.fillRect(x * s + 1.5, y * s + 1.5, L * s - 3, course * s - 3);
+      // wrap horizontally so the tile is seamless
+      if (x < 0) g.fillRect((x + size) * s + 1.5, y * s + 1.5, L * s - 3, course * s - 3);
+      if (x + L > size) g.fillRect((x - size) * s + 1.5, y * s + 1.5, L * s - 3, course * s - 3);
+      // subtle chisel-drafted margin
+      g.strokeStyle = shade(base, tone - 0.05);
+      g.lineWidth = 1;
+      g.strokeRect(x * s + 3, y * s + 3, L * s - 6, course * s - 6);
+      x += L;
+    }
+  }
+  grain(g, px, px, rough, r);
+  return finish(c, size, size);
+}
+
+function paving() {
+  const px = 512, size = 4, s = px / size;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(77);
+  g.fillStyle = '#b9ad94';
+  g.fillRect(0, 0, px, px);
+  for (let y = 0; y < size; y += 1) {
+    const off = (y % 2) * 0.5;
+    for (let x = -1; x < size + 1; x += 1) {
+      g.fillStyle = shade('#d6ccb6', (r() - 0.5) * 0.08);
+      g.fillRect((x + off) * s + 2, y * s + 2, s - 4, s - 4);
+    }
+  }
+  grain(g, px, px, 22, r);
+  return finish(c, size, size);
+}
+
+function earth() {
+  const px = 512, size = 10, s = px / size;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(5);
+  g.fillStyle = '#8f7f5c';
+  g.fillRect(0, 0, px, px);
+  for (let i = 0; i < 900; i++) {
+    const x = r() * px, y = r() * px, rad = 2 + r() * 14;
+    g.fillStyle = r() < 0.55 ? `rgba(98,112,56,${0.25 + r() * 0.4})` : `rgba(120,100,70,${0.2 + r() * 0.3})`;
+    g.beginPath();
+    g.arc(x, y, rad, 0, Math.PI * 2);
+    g.fill();
+  }
+  grain(g, px, px, 30, r);
+  void s;
+  return finish(c, size, size);
+}
+
+function marble() {
+  const px = 512, size = 4, s = px / size;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(11);
+  for (let i = 0; i < size; i++) {
+    g.fillStyle = shade('#e4e0d8', (r() - 0.5) * 0.06);
+    g.fillRect(i * s, 0, s, px);
+    g.strokeStyle = 'rgba(110,105,100,0.35)';
+    for (let v = 0; v < 6; v++) {
+      g.beginPath();
+      let x = i * s + r() * s, y = 0;
+      g.moveTo(x, y);
+      while (y < px) {
+        y += 10 + r() * 30;
+        x += (r() - 0.5) * 18;
+        g.lineTo(x, y);
+      }
+      g.lineWidth = 0.5 + r() * 1.2;
+      g.stroke();
+    }
+    g.fillStyle = 'rgba(80,70,60,0.5)';
+    g.fillRect(i * s, 0, 2, px);
+  }
+  grain(g, px, px, 10, r);
+  return finish(c, size, size);
+}
+
+// One octagon face of the Dome of the Rock (20.6 m x 6.4 m upper zone):
+// seven arched panels, five of them pierced windows, with an inscription
+// frieze on top. `kind` is 'tile' (Ottoman, from 1545) or 'mosaic' (Umayyad).
+function faceTexture(kind) {
+  const W = 2048, H = 640, mW = 20.6, mH = 6.4;
+  const s = W / mW;
+  const c = makeCanvas(W, H);
+  const g = c.getContext('2d');
+  const r = rng(kind === 'tile' ? 31 : 32);
+  const tile = kind === 'tile';
+  const ground = tile ? '#1f5296' : '#2f6a4a';
+  g.fillStyle = ground;
+  g.fillRect(0, 0, W, H);
+  // small repeating motif
+  for (let y = 0; y < H; y += 16) {
+    for (let x = (y / 16) % 2 ? 8 : 0; x < W; x += 16) {
+      g.fillStyle = tile ? (r() < 0.5 ? '#2c67b0' : '#173f78') : (r() < 0.5 ? '#c7a43f' : '#3d7d57');
+      g.beginPath();
+      g.arc(x, y, tile ? 3 : 2.4, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  // frieze band
+  const band = 1.0 * s;
+  g.fillStyle = tile ? '#0e2a57' : '#1d3d2b';
+  g.fillRect(0, 0, W, band);
+  g.fillStyle = tile ? '#f4f1e6' : '#e7c45a';
+  g.font = `${Math.round(band * 0.62)}px "Amiri", "Noto Naskh Arabic", "Scheherazade New", serif`;
+  g.textBaseline = 'middle';
+  g.textAlign = 'center';
+  g.direction = 'rtl';
+  g.fillText(YASIN, W / 2, band * 0.52, W * 0.97);
+  g.fillStyle = tile ? '#4fa3c7' : '#d6b452';
+  g.fillRect(0, band, W, 5);
+  // seven arches
+  const n = 7, pw = mW / n;
+  for (let i = 0; i < n; i++) {
+    const cx = (i + 0.5) * pw * s;
+    const aw = pw * 0.62 * s;
+    const top = band + 0.55 * s;
+    const bottom = H - 0.25 * s;
+    const window = i > 0 && i < n - 1;
+    g.save();
+    g.beginPath();
+    g.moveTo(cx - aw / 2, bottom);
+    g.lineTo(cx - aw / 2, top + aw * 0.55);
+    g.quadraticCurveTo(cx - aw / 2, top, cx, top - aw * 0.12);
+    g.quadraticCurveTo(cx + aw / 2, top, cx + aw / 2, top + aw * 0.55);
+    g.lineTo(cx + aw / 2, bottom);
+    g.closePath();
+    g.lineWidth = 10;
+    g.strokeStyle = tile ? '#e8f0f2' : '#e1c062';
+    g.stroke();
+    g.fillStyle = window ? (tile ? '#16253a' : '#1a2a20') : (tile ? '#2b5ea2' : '#3a7350');
+    g.fill();
+    if (window) {
+      g.clip();
+      g.strokeStyle = tile ? 'rgba(170,200,230,0.45)' : 'rgba(225,192,98,0.45)';
+      g.lineWidth = 3;
+      for (let k = -20; k < 20; k++) {
+        g.beginPath();
+        g.moveTo(cx + k * 14, top - 40);
+        g.lineTo(cx + k * 14 + 200, bottom);
+        g.moveTo(cx + k * 14, top - 40);
+        g.lineTo(cx + k * 14 - 200, bottom);
+        g.stroke();
+      }
+    }
+    g.restore();
+  }
+  grain(g, W, H, 10, r);
+  return finish(c, mW, mH);
+}
+
+// Drum: 16 windows round a 73.5 m circumference -> one window per 4.59 m.
+function drumTexture(kind) {
+  const W = 256, H = 512, mW = 4.594, mH = 9.0;
+  const c = makeCanvas(W, H);
+  const g = c.getContext('2d');
+  const tile = kind === 'tile';
+  g.fillStyle = tile ? '#1e4f92' : '#2f6a4a';
+  g.fillRect(0, 0, W, H);
+  g.fillStyle = tile ? '#0e2a57' : '#1d3d2b';
+  g.fillRect(0, 0, W, 50);
+  g.fillStyle = tile ? '#4fa3c7' : '#d6b452';
+  g.fillRect(0, 50, W, 6);
+  g.fillRect(0, H - 40, W, 6);
+  const cx = W / 2, aw = W * 0.5, top = 120, bottom = H - 70;
+  g.beginPath();
+  g.moveTo(cx - aw / 2, bottom);
+  g.lineTo(cx - aw / 2, top + aw * 0.5);
+  g.quadraticCurveTo(cx - aw / 2, top, cx, top - 20);
+  g.quadraticCurveTo(cx + aw / 2, top, cx + aw / 2, top + aw * 0.5);
+  g.lineTo(cx + aw / 2, bottom);
+  g.closePath();
+  g.lineWidth = 8;
+  g.strokeStyle = tile ? '#e8f0f2' : '#e1c062';
+  g.stroke();
+  g.fillStyle = '#17263b';
+  g.fill();
+  return finish(c, mW, mH);
+}
+
+// Painted interior of a dome: gold ground with red/green roundels.
+function domeInterior() {
+  const px = 512, size = 6;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(9);
+  g.fillStyle = '#b8862d';
+  g.fillRect(0, 0, px, px);
+  for (let y = 0; y < px; y += 64) {
+    for (let x = 0; x < px; x += 64) {
+      const ox = (y / 64) % 2 ? 32 : 0;
+      g.fillStyle = '#7a1d1b';
+      g.beginPath();
+      g.arc(x + ox, y, 22, 0, Math.PI * 2);
+      g.fill();
+      g.strokeStyle = '#f2d27a';
+      g.lineWidth = 3;
+      g.stroke();
+      g.fillStyle = '#1f5a45';
+      g.beginPath();
+      g.arc(x + ox, y, 8, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  grain(g, px, px, 14, r);
+  return finish(c, size, size);
+}
+
+function carpet() {
+  const px = 256, size = 1.25;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  g.fillStyle = '#8c1f22';
+  g.fillRect(0, 0, px, px);
+  g.fillStyle = '#6d1518';
+  g.fillRect(0, px - 26, px, 26);
+  g.strokeStyle = '#c9a65a';
+  g.lineWidth = 4;
+  g.beginPath();
+  g.moveTo(40, px - 30);
+  g.lineTo(40, 90);
+  g.quadraticCurveTo(40, 30, px / 2, 22);
+  g.quadraticCurveTo(px - 40, 30, px - 40, 90);
+  g.lineTo(px - 40, px - 30);
+  g.stroke();
+  g.fillStyle = '#a3302f';
+  g.fillRect(70, 110, px - 140, px - 160);
+  return finish(c, size, size);
+}
+
+function ceiling() {
+  const px = 256, size = 2.5;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  g.fillStyle = '#5a3a22';
+  g.fillRect(0, 0, px, px);
+  g.fillStyle = '#2d4d73';
+  g.fillRect(16, 16, px - 32, px - 32);
+  g.strokeStyle = '#d9b45e';
+  g.lineWidth = 5;
+  g.strokeRect(24, 24, px - 48, px - 48);
+  g.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    g.moveTo(px / 2, px / 2);
+    g.lineTo(px / 2 + Math.cos(a) * 80, px / 2 + Math.sin(a) * 80);
+  }
+  g.stroke();
+  return finish(c, size, size);
+}
+
+function lead() {
+  const px = 256, size = 3;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(3);
+  g.fillStyle = '#7d8288';
+  g.fillRect(0, 0, px, px);
+  for (let x = 0; x < px; x += px / 5) {
+    g.fillStyle = '#5e6267';
+    g.fillRect(x, 0, 3, px);
+  }
+  grain(g, px, px, 20, r);
+  return finish(c, size, size);
+}
+
+function wood() {
+  const px = 256, size = 2;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  const r = rng(21);
+  for (let y = 0; y < px; y += 32) {
+    g.fillStyle = shade('#6b4526', (r() - 0.5) * 0.08);
+    g.fillRect(0, y, px, 30);
+    g.strokeStyle = 'rgba(40,20,10,0.35)';
+    for (let k = 0; k < 6; k++) {
+      g.beginPath();
+      g.moveTo(0, y + r() * 30);
+      g.bezierCurveTo(80, y + r() * 30, 160, y + r() * 30, px, y + r() * 30);
+      g.stroke();
+    }
+  }
+  return finish(c, size, size);
+}
+
+// Carved stone arabesque (Sabil Qaitbay's dome).
+function carved() {
+  const px = 256, size = 2;
+  const c = makeCanvas(px, px);
+  const g = c.getContext('2d');
+  g.fillStyle = '#d4c19c';
+  g.fillRect(0, 0, px, px);
+  g.strokeStyle = '#a58f66';
+  g.lineWidth = 6;
+  for (let i = 0; i < 4; i++) {
+    g.beginPath();
+    g.arc(px / 2, px / 2, 20 + i * 30, 0, Math.PI * 2);
+    g.stroke();
+  }
+  g.beginPath();
+  g.moveTo(0, 0);
+  g.lineTo(px, px);
+  g.moveTo(px, 0);
+  g.lineTo(0, px);
+  g.stroke();
+  return finish(c, size, size);
+}
+
+function makeTextures() {
+  return {
+    stone: ashlar(1, '#dccaa4'),
+    stoneWarm: ashlar(2, '#d2b98e', { mortar: '#e5d5b5' }),
+    wallOld: ashlar(3, '#c4b089', { course: 1.0, minL: 1.2, maxL: 3.2, mortar: '#b8a47e', size: 8, rough: 34 }),
+    herodian: ashlar(4, '#cdbb92', { course: 1.1, minL: 2.0, maxL: 5.0, mortar: '#9f8d68', size: 10, rough: 30 }),
+    house: ashlar(6, '#d8c7a5', { course: 0.4, minL: 0.5, maxL: 1.1, mortar: '#e8dcc2', size: 3, rough: 28 }),
+    paving: paving(),
+    earth: earth(),
+    marble: marble(),
+    faceTile: faceTexture('tile'),
+    faceMosaic: faceTexture('mosaic'),
+    drumTile: drumTexture('tile'),
+    drumMosaic: drumTexture('mosaic'),
+    domeInner: domeInterior(),
+    carpet: carpet(),
+    ceiling: ceiling(),
+    lead: lead(),
+    wood: wood(),
+    carved: carved(),
+  };
+}
+
+// ---- geom.js ----
+// Geometry helpers. All UVs are in metres so textures tile at true scale.
+
+function mat(map, opts = {}) {
+  return new THREE.MeshStandardMaterial({ map, roughness: 0.9, metalness: 0, ...opts });
+}
+
+function mesh(geo, material, { cast = true, recv = true, collide = false, walk = false } = {}) {
+  const m = new THREE.Mesh(geo, material);
+  m.castShadow = cast;
+  m.receiveShadow = recv;
+  if (collide) m.userData.collide = true;
+  if (walk) m.userData.walk = true;
+  return m;
+}
+
+// Place an object at site coordinates (X east, Y north), height y, and a
+// heading `rot` in radians (counter-clockwise seen from above).
+function put(obj, X, Y, y = 0, rot = 0) {
+  const w = toWorld(X, Y);
+  obj.position.set(w.x, y, w.z);
+  obj.rotation.y = rot;
+  return obj;
+}
+
+// Box with metre UVs on every face.
+function boxGeo(w, h, d) {
+  const g = new THREE.BoxGeometry(w, h, d);
+  const uv = g.attributes.uv;
+  const dims = [[d, h], [d, h], [w, d], [w, d], [w, h], [w, h]];
+  for (let f = 0; f < 6; f++) {
+    for (let k = 0; k < 4; k++) {
+      const i = f * 4 + k;
+      uv.setXY(i, uv.getX(i) * dims[f][0], uv.getY(i) * dims[f][1]);
+    }
+  }
+  return g;
+}
+
+function cylGeo(rTop, rBot, h, seg = 24, open = false, thetaStart = 0) {
+  const g = new THREE.CylinderGeometry(rTop, rBot, h, seg, 1, open, thetaStart);
+  const uv = g.attributes.uv;
+  const circ = Math.PI * (rTop + rBot);
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * circ, uv.getY(i) * h);
+  return g;
+}
+
+// Points of a two-centred pointed arch from (L, s) to (R, s).
+function archPoints(L, R, s, n = 10, pointed = true) {
+  const w = R - L;
+  const pts = [];
+  if (!pointed) {
+    for (let i = 0; i <= n * 2; i++) {
+      const a = Math.PI - (i / (n * 2)) * Math.PI;
+      pts.push([L + w / 2 + Math.cos(a) * w / 2, s + Math.sin(a) * w / 2]);
+    }
+    return pts;
+  }
+  const r = 0.65 * w;
+  const phi = Math.acos((w / 2 - r) / r);
+  for (let i = 0; i <= n; i++) {
+    const a = Math.PI - (i / n) * (Math.PI - phi);
+    pts.push([L + r + Math.cos(a) * r, s + Math.sin(a) * r]);
+  }
+  for (let i = n - 1; i >= 0; i--) {
+    const a = Math.PI - (i / n) * (Math.PI - phi);
+    pts.push([R - r - Math.cos(a) * r, s + Math.sin(a) * r]);
+  }
+  return pts;
+}
+
+// A wall `len` long and `height` tall, `t` thick, centred on the origin
+// along x. `doors` cut from the ground: { c, w, s (spring height), flat }.
+// `windows` are holes: { c, y, w, h }.
+function wallGeo(len, height, t, { doors = [], windows = [], pointed = true } = {}) {
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0);
+  const ds = [...doors].sort((a, b) => a.c - b.c);
+  for (const d of ds) {
+    const L = d.c - d.w / 2, Rr = d.c + d.w / 2;
+    shape.lineTo(L, 0);
+    shape.lineTo(L, d.s);
+    if (d.flat) {
+      shape.lineTo(Rr, d.s);
+    } else {
+      for (const [x, y] of archPoints(L, Rr, d.s, 8, pointed)) shape.lineTo(x, Math.min(y, height - 0.2));
+    }
+    shape.lineTo(Rr, 0);
+  }
+  shape.lineTo(len, 0);
+  shape.lineTo(len, height);
+  shape.lineTo(0, height);
+  shape.lineTo(0, 0);
+  for (const wn of windows) {
+    const hole = new THREE.Path();
+    const L = wn.c - wn.w / 2, Rr = wn.c + wn.w / 2;
+    hole.moveTo(L, wn.y);
+    hole.lineTo(Rr, wn.y);
+    const pts = archPoints(L, Rr, wn.y + wn.h, 6, pointed).reverse();
+    for (const [x, y] of pts) hole.lineTo(x, y);
+    hole.lineTo(L, wn.y);
+    shape.holes.push(hole);
+  }
+  const g = new THREE.ExtrudeGeometry(shape, { depth: t, bevelEnabled: false, curveSegments: 6 });
+  g.translate(-len / 2, 0, -t / 2);
+  return g;
+}
+
+// An arcade: `bays` arches across `len`, piers `pier` wide.
+function arcadeGeo(len, height, bays, spring, pier, t, pointed = true) {
+  const bw = len / bays;
+  const doors = [];
+  for (let i = 0; i < bays; i++) doors.push({ c: (i + 0.5) * bw, w: bw - pier, s: spring });
+  return wallGeo(len, height, t, { doors, pointed });
+}
+
+// Lathe dome. `pinch` > 0 draws the top in to a point, as on the Dome of
+// the Rock; `bulb` > 0 swells the haunches.
+function domeGeo(R, H, { pinch = 0.15, bulb = 0, seg = 48, n = 24 } = {}) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI / 2;
+    let x = R * Math.cos(a) * (1 - pinch * Math.pow(Math.sin(a), 6));
+    x *= 1 + bulb * Math.sin(a * 2);
+    pts.push(new THREE.Vector2(Math.max(0.001, x), H * Math.sin(a)));
+  }
+  const g = new THREE.LatheGeometry(pts, seg);
+  const uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2 * Math.PI * R, uv.getY(i) * H * 1.4);
+  return g;
+}
+
+// Finial with crescent (hilal), or a cross for the Crusader occupation.
+function finial(scale, material, cross = false) {
+  const g = new THREE.Group();
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 2.2, 8), material);
+  pole.position.y = 1.1;
+  g.add(pole);
+  for (const [y, r] of [[0.5, 0.28], [1.0, 0.22], [1.45, 0.18]]) {
+    const b = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 8), material);
+    b.position.y = y;
+    g.add(b);
+  }
+  if (cross) {
+    const v = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.4, 0.14), material);
+    v.position.y = 2.6;
+    const h = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.14, 0.14), material);
+    h.position.y = 2.85;
+    g.add(v, h);
+  } else {
+    const c = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.09, 8, 24, Math.PI * 1.45), material);
+    c.position.y = 2.75;
+    c.rotation.z = Math.PI / 2 + Math.PI * 0.275;
+    g.add(c);
+  }
+  g.scale.setScalar(scale);
+  g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  return g;
+}
+
+// Merge non-indexed copies of geometries that share position/normal/uv.
+function mergeGeos(list) {
+  const parts = list.map((g) => (g.index ? g.toNonIndexed() : g));
+  let n = 0;
+  for (const p of parts) n += p.attributes.position.count;
+  const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = new Float32Array(n * 2);
+  let o = 0;
+  for (const p of parts) {
+    pos.set(p.attributes.position.array, o * 3);
+    nor.set(p.attributes.normal.array, o * 3);
+    if (p.attributes.uv) uv.set(p.attributes.uv.array, o * 2);
+    o += p.attributes.position.count;
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  return out;
+}
+
+// Flight of steps descending along local +z from height `h` to 0.
+function stairsGeo(width, h, rise = 0.25, tread = 0.4) {
+  const n = Math.round(h / rise);
+  const parts = [];
+  for (let i = 0; i < n; i++) {
+    const top = h - i * rise;
+    const g = boxGeo(width, top, tread);
+    g.translate(0, top / 2, (i + 0.5) * tread);
+    parts.push(g);
+  }
+  return { geo: mergeGeos(parts), length: n * tread };
+}
+
+// Polygon (site coords) to a horizontal ShapeGeometry at height y.
+function floorGeo(poly, holes = []) {
+  const shape = new THREE.Shape();
+  poly.forEach(([X, Y], i) => {
+    const w = toWorld(X, Y);
+    if (i === 0) shape.moveTo(w.x, -w.z);
+    else shape.lineTo(w.x, -w.z);
+  });
+  for (const hp of holes) {
+    const path = new THREE.Path();
+    hp.forEach(([X, Y], i) => {
+      const w = toWorld(X, Y);
+      if (i === 0) path.moveTo(w.x, -w.z);
+      else path.lineTo(w.x, -w.z);
+    });
+    shape.holes.push(path);
+  }
+  const g = new THREE.ShapeGeometry(shape);
+  g.rotateX(-Math.PI / 2);
+  return g;
+}
+
+function rect(X0, Y0, X1, Y1) {
+  return [[X0, Y0], [X1, Y0], [X1, Y1], [X0, Y1]];
+}
+
+// ---- timeline.js ----
+// Timeline stops. `year` is the year the 3D scene shows for this stop.
+const ERAS = [
+  {
+    year: 638, ah: '16 AH', label: 'Umar', dynasty: 'Rashidun',
+    title: 'Caliph Umar enters Jerusalem',
+    text: 'Patriarch Sophronius hands the city to Caliph Umar ibn al-Khattab, who grants its people the Covenant of Umar. Umar finds the sacred mount strewn with refuse, clears it with his own hands, and a plain timber prayer house is raised at its southern end.',
+  },
+  {
+    year: 691, ah: '72 AH', label: 'Dome of the Rock', dynasty: 'Umayyad',
+    title: 'Abd al-Malik builds the Dome of the Rock',
+    text: 'The Umayyad caliph Abd al-Malik ibn Marwan completes the Dome of the Rock over the Rock of the Night Journey, its exterior sheathed in glass mosaic and its dome gilded. The Dome of the Chain rises beside it.',
+  },
+  {
+    year: 715, ah: '96 AH', label: 'Al-Walid', dynasty: 'Umayyad',
+    title: 'Al-Walid I completes al-Aqsa Mosque',
+    text: 'A great congregational mosque replaces Umar’s timber hall on the south of the enclosure. Earthquakes in 746 bring it down; the Abbasid caliphs al-Mansur and al-Mahdi rebuild it with fifteen aisles.',
+  },
+  {
+    year: 1035, ah: '426 AH', label: 'Fatimid', dynasty: 'Fatimid',
+    title: 'Al-Zahir rebuilds after the earthquake',
+    text: 'After the earthquake of 1033 the Fatimid caliph al-Zahir rebuilds al-Aqsa with seven aisles, the plan it keeps today. The Dome of the Rock’s fallen dome had been rebuilt in 1022–23, now sheathed in lead.',
+  },
+  {
+    year: 1099, ah: '492 AH', label: 'Crusades', dynasty: 'Crusader occupation',
+    title: 'The Crusader occupation (1099–1187)',
+    text: 'The Crusaders storm Jerusalem and massacre its Muslim and Jewish inhabitants, many of them in the sanctuary itself. The Dome of the Rock is turned into a church with a cross on its dome; al-Aqsa becomes a palace and then the headquarters of the Templars. For 88 years no adhan is called here.',
+  },
+  {
+    year: 1187, ah: '583 AH', label: 'Salah al-Din', dynasty: 'Ayyubid',
+    title: 'Salah al-Din liberates al-Aqsa',
+    text: 'On Friday 27 Rajab 583 AH (2 October 1187), the anniversary of the Night Journey, Salah al-Din enters Jerusalem. The cross is taken down, the sanctuary is washed with rose-water and the minbar of Nur al-Din is installed in al-Aqsa. The Ayyubids add the Dome of the Ascension, the porch and the Dome of Moses.',
+  },
+  {
+    year: 1330, ah: '730 AH', label: 'Mamluk', dynasty: 'Mamluk',
+    title: 'The Mamluk building age',
+    text: 'Under the Mamluk sultans the sanctuary is ringed with riwaqs, madrasas and four minarets: al-Fakhariyya (1278), al-Ghawanima (1297), Bab al-Silsila (1329) and Bab al-Asbat (1367). Arcades crown the stairways to the platform.',
+  },
+  {
+    year: 1482, ah: '887 AH', label: 'Qaitbay', dynasty: 'Mamluk',
+    title: 'Sultan Qaitbay’s works',
+    text: 'Sultan al-Ashraf Qaitbay builds the Madrasa al-Ashrafiyya on the west side and the sabil with its carved-stone dome, the finest of its kind in Jerusalem.',
+  },
+  {
+    year: 1550, ah: '957 AH', label: 'Suleiman', dynasty: 'Ottoman',
+    title: 'Suleiman the Magnificent',
+    text: 'Suleiman rebuilds the walls of Jerusalem (1537–41) and from 1545 replaces the Dome of the Rock’s worn exterior mosaics with Iznik-style tiles, including the frieze of Surah Ya-Sin. The Dome of the Prophet (1538) and smaller domes join the platform.',
+  },
+  {
+    year: 1917, ah: '1336 AH', label: 'British', dynasty: 'British Mandate',
+    title: 'British Mandate',
+    text: 'British forces take Jerusalem. The Supreme Muslim Council restores al-Aqsa after the 1927 earthquake (1938–43) and opens the Islamic Museum in 1923. In 1930 an international commission confirms al-Buraq Wall as Muslim waqf.',
+  },
+  {
+    year: 1955, ah: '1374 AH', label: 'Jordan', dynasty: 'Jordanian administration',
+    title: 'Jordanian custodianship',
+    text: 'The Old City comes under Jordanian administration. Between 1959 and 1964 the Dome of the Rock is restored and its dome covered in gold-anodised aluminium.',
+  },
+  {
+    year: 1967, ah: '1387 AH', label: '1967', dynasty: 'Israeli occupation',
+    title: 'Occupation of East Jerusalem',
+    text: 'In June 1967 Israel occupies East Jerusalem. Within days the 770-year-old Mughrabi Quarter is demolished to make a plaza before al-Buraq Wall. The Jordanian Waqf continues to administer the sanctuary.',
+  },
+  {
+    year: 1969, ah: '1389 AH', label: 'Arson', dynasty: 'Israeli occupation',
+    title: 'The arson of al-Aqsa',
+    text: 'On 21 August 1969 Denis Michael Rohan sets fire to al-Aqsa. The south-eastern part of the mosque burns and the 800-year-old minbar of Salah al-Din is destroyed. The outrage leads to the founding of the Organisation of the Islamic Conference.',
+  },
+  {
+    year: 1994, ah: '1415 AH', label: 'Gold', dynasty: 'Israeli occupation',
+    title: 'The dome is gilded',
+    text: 'Funded by King Hussein of Jordan, about 5,000 gold-plated copper plates carrying some 80 kg of gold are laid on the Dome of the Rock.',
+  },
+  {
+    year: 1996, ah: '1417 AH', label: 'Marwani', dynasty: 'Israeli occupation',
+    title: 'Al-Musalla al-Marwani opens',
+    text: 'Volunteers restore the vaults beneath the south-east corner and open them as al-Musalla al-Marwani, one of the largest prayer halls of al-Aqsa.',
+  },
+  {
+    year: 2007, ah: '1428 AH', label: 'Minbar', dynasty: 'Israeli occupation',
+    title: 'The minbar returns',
+    text: 'A replica of the minbar of Salah al-Din, carved over years by craftsmen in Jordan using the original joinery without nails or glue, is installed beside the mihrab.',
+  },
+  {
+    year: 2019, ah: '1440 AH', label: 'Bab al-Rahma', dynasty: 'Israeli occupation',
+    title: 'Bab al-Rahma reopens',
+    text: 'In February 2019 worshippers reopen the prayer hall of Bab al-Rahma, closed since 2003.',
+  },
+  {
+    year: 2026, ah: '1448 AH', label: 'Today', dynasty: 'Today',
+    title: 'Al-Aqsa today',
+    text: 'The whole sanctuary of about 144 dunams, with its domes, prayer halls, schools, fountains and gardens, is al-Masjid al-Aqsa. It remains under the custodianship of the Jordanian Waqf.',
+  },
+];
+
+function eraFor(year) {
+  let e = ERAS[0];
+  for (const x of ERAS) if (year >= x.year) e = x;
+  return e;
+}
+
+function hijri(year) {
+  return Math.round((year - 622) * 33 / 32);
+}
+
+// ---- buildings.js ----
+// Builds al-Masjid al-Aqsa (al-Haram al-Sharif) and its surroundings.
+// Dimensions follow published surveys and plans; earlier eras are
+// interpretive reconstructions from historical descriptions.
+
+const PLATFORM_H = 3.5; // height of the Dome of the Rock platform (Sahn al-Sakhra)
+const P = PLATFORM_H;
+const DOR = [138, 292]; // Dome of the Rock centre, site coords
+
+function materials(T) {
+  const side2 = { side: THREE.DoubleSide };
+  return {
+    stone: mat(T.stone),
+    stoneWarm: mat(T.stoneWarm),
+    wallOld: mat(T.wallOld),
+    herodian: mat(T.herodian),
+    paving: mat(T.paving, { color: 0xe8e0d0 }),
+    earth: mat(T.earth),
+    marble: mat(T.marble, { color: 0xe6dfd3, roughness: 0.5 }),
+    column: mat(T.marble, { color: 0xd9d1c4, roughness: 0.4 }),
+    faceTile: mat(T.faceTile, { roughness: 0.45 }),
+    faceMosaic: mat(T.faceMosaic, { roughness: 0.4, metalness: 0.15 }),
+    drumTile: mat(T.drumTile, { roughness: 0.45, ...side2 }),
+    drumMosaic: mat(T.drumMosaic, { roughness: 0.4, metalness: 0.15, ...side2 }),
+    domeInner: mat(T.domeInner, { roughness: 0.5, metalness: 0.3, ...side2 }),
+    carpet: mat(T.carpet, { roughness: 1 }),
+    ceiling: mat(T.ceiling, { roughness: 0.8, ...side2 }),
+    lead: mat(T.lead, { roughness: 0.55, metalness: 0.4, ...side2 }),
+    leadDark: mat(T.lead, { color: 0x6c7075, roughness: 0.5, metalness: 0.5, ...side2 }),
+    alu: new THREE.MeshStandardMaterial({ color: 0xc9ccd0, roughness: 0.3, metalness: 0.9, ...side2 }),
+    gold: new THREE.MeshStandardMaterial({ color: 0xe2b23c, roughness: 0.22, metalness: 1, ...side2 }),
+    goldPale: new THREE.MeshStandardMaterial({ color: 0xd8b25a, roughness: 0.3, metalness: 0.95, ...side2 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xc79a3a, roughness: 0.35, metalness: 0.9 }),
+    wood: mat(T.wood, { roughness: 0.8 }),
+    carved: mat(T.carved),
+    rock: new THREE.MeshStandardMaterial({ color: 0x9a8a72, roughness: 1, flatShading: true }),
+    water: new THREE.MeshStandardMaterial({ color: 0x3b7ea1, roughness: 0.08, metalness: 0.2 }),
+    mihrab: new THREE.MeshStandardMaterial({ color: 0xc9a245, roughness: 0.35, metalness: 0.6, emissive: 0x2a1c05 }),
+    lamp: new THREE.MeshStandardMaterial({ color: 0xffe2a0, emissive: 0xffc96a, emissiveIntensity: 1.6 }),
+    soot: new THREE.MeshBasicMaterial({ color: 0x0b0806, transparent: true, opacity: 0.72, side: THREE.DoubleSide, depthWrite: false }),
+    house: mat(T.house),
+    cypress: new THREE.MeshStandardMaterial({ color: 0x2f4a2a, roughness: 1 }),
+    olive: new THREE.MeshStandardMaterial({ color: 0x7c8a5a, roughness: 1, flatShading: true }),
+    trunk: new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: 1 }),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Small reusable structures
+
+function domeOn(group, M, { y, r, h, domeMat, drumH = 0, drumMat = null, inner = true, pinch = 0.1, cross = null, finialScale = 0.6 }) {
+  if (drumH > 0) {
+    const drum = mesh(cylGeo(r, r, drumH, 32, true), drumMat || M.stone);
+    drum.position.y = y + drumH / 2;
+    group.add(drum);
+  }
+  const top = y + drumH;
+  const d = mesh(domeGeo(r * 1.03, h, { pinch }), domeMat);
+  d.position.y = top;
+  group.add(d);
+  if (inner) {
+    const di = mesh(domeGeo(r * 0.95, h * 0.94, { pinch }), M.domeInner, { cast: false });
+    di.position.y = top;
+    group.add(di);
+  }
+  if (finialScale) {
+    if (cross) {
+      const [crossFrom, crossTo] = cross;
+      group.add(era(finial(finialScale, M.brass, false), -Infinity, crossFrom).translateY(top + h - 0.1));
+      group.add(era(finial(finialScale, M.brass, true), crossFrom, crossTo).translateY(top + h - 0.1));
+      group.add(era(finial(finialScale, M.brass, false), crossTo, Infinity).translateY(top + h - 0.1));
+    } else {
+      const f = finial(finialScale, M.brass);
+      f.position.y = top + h - 0.1;
+      group.add(f);
+    }
+  }
+}
+
+// Open polygonal pavilion of columns and arches with a dome
+// (Dome of the Ascension, Dome of the Prophet, ...). `closed` lists the
+// indices of sides filled in with a wall (a mihrab side).
+function pavilion(M, { n, r, h, spring, domeR, domeH, drumH = 1, closed = [], domeMat }) {
+  const g = new THREE.Group();
+  const side = 2 * r * Math.sin(Math.PI / n);
+  const inr = r * Math.cos(Math.PI / n);
+  for (let k = 0; k < n; k++) {
+    const th = (k + 0.5) * (2 * Math.PI / n);
+    const geo = closed.includes(k) ? wallGeo(side + 0.05, h, 0.5) : arcadeGeo(side + 0.05, h, 1, spring, 0.45, 0.5);
+    const w = mesh(geo, closed.includes(k) ? M.marble : M.stone, { collide: true });
+    w.position.set(Math.sin(th) * inr, 0, Math.cos(th) * inr);
+    w.rotation.y = th;
+    g.add(w);
+    const ca = k * (2 * Math.PI / n);
+    const col = mesh(cylGeo(0.22, 0.22, spring, 10), M.column, { collide: true });
+    col.position.set(Math.sin(ca) * r * 0.985, spring / 2, Math.cos(ca) * r * 0.985);
+    g.add(col);
+  }
+  const roof = mesh(cylGeo(domeR + 0.1, r + 0.35, 0.5, n, false, Math.PI / n), M.stone);
+  roof.position.y = h + 0.25;
+  g.add(roof);
+  const floor = mesh(cylGeo(r + 0.4, r + 0.4, 0.25, n, false, Math.PI / n), M.marble, { walk: true });
+  floor.position.y = 0.12;
+  g.add(floor);
+  domeOn(g, M, { y: h + 0.5, r: domeR, h: domeH, domeMat: domeMat || M.leadDark, drumH, finialScale: 0.45 });
+  return g;
+}
+
+function cubeDome(M, { w, d, h, domeR, domeH, drumH = 1.2, wallMat, door = 'S', domes = [[0, 0]] }) {
+  const g = new THREE.Group();
+  const t = 0.8;
+  const walls = [
+    { len: w, x: 0, z: d / 2 - t / 2, rot: 0, key: 'S' },
+    { len: w, x: 0, z: -d / 2 + t / 2, rot: 0, key: 'N' },
+    { len: d, x: w / 2 - t / 2, z: 0, rot: Math.PI / 2, key: 'E' },
+    { len: d, x: -w / 2 + t / 2, z: 0, rot: Math.PI / 2, key: 'W' },
+  ];
+  for (const s of walls) {
+    const doors = s.key === door ? [{ c: s.len / 2, w: 1.8, s: 2.6 }] : [];
+    const windows = [{ c: s.len / 2 + (doors.length ? s.len / 4 : 0), y: h * 0.45, w: 1.0, h: 1.2 }];
+    const m = mesh(wallGeo(s.len, h, t, { doors, windows }), wallMat || M.stone, { collide: true });
+    m.position.set(s.x, 0, s.z);
+    m.rotation.y = s.rot;
+    g.add(m);
+  }
+  const roof = mesh(boxGeo(w + 0.3, 0.6, d + 0.3), M.stone);
+  roof.position.y = h + 0.3;
+  g.add(roof);
+  for (const [dx, dz] of domes) {
+    const dg = new THREE.Group();
+    dg.position.set(dx, 0, dz);
+    domeOn(dg, M, { y: h + 0.6, r: domeR, h: domeH, domeMat: M.leadDark, drumH, finialScale: 0.5 });
+    g.add(dg);
+  }
+  return g;
+}
+
+function minaret(M, { h, w, upper = 'cyl', from }) {
+  const g = new THREE.Group();
+  const shaftH = h * 0.66;
+  const shaft = mesh(boxGeo(w, shaftH, w), M.stoneWarm, { collide: true });
+  shaft.position.y = shaftH / 2;
+  g.add(shaft);
+  // decorative string courses and blind arch windows
+  for (let i = 1; i < 4; i++) {
+    const band = mesh(boxGeo(w + 0.3, 0.3, w + 0.3), M.stone);
+    band.position.y = (shaftH / 4) * i;
+    g.add(band);
+  }
+  const balc = mesh(boxGeo(w + 1.8, 0.45, w + 1.8), M.stone);
+  balc.position.y = shaftH + 0.2;
+  g.add(balc);
+  const rail = mesh(cylGeo((w + 1.7) * 0.7, (w + 1.7) * 0.7, 1.0, 4, true, Math.PI / 4), M.stone);
+  rail.position.y = shaftH + 0.9;
+  g.add(rail);
+  const uh = h * 0.2;
+  const ur = w * 0.42;
+  let up;
+  if (upper === 'cyl') up = mesh(cylGeo(ur, ur, uh, 20), M.stoneWarm);
+  else if (upper === 'oct') up = mesh(cylGeo(ur, ur, uh, 8, false, Math.PI / 8), M.stoneWarm);
+  else up = mesh(boxGeo(ur * 1.7, uh, ur * 1.7), M.stoneWarm);
+  up.position.y = shaftH + 0.45 + uh / 2;
+  g.add(up);
+  const cap = mesh(boxGeo(ur * 2.3, 0.35, ur * 2.3), M.stone);
+  if (upper === 'cyl') cap.geometry = cylGeo(ur * 1.25, ur * 1.25, 0.35, 20);
+  cap.position.y = shaftH + 0.45 + uh + 0.17;
+  g.add(cap);
+  domeOn(g, M, { y: shaftH + 0.62 + uh, r: ur * 0.95, h: ur * 1.3, domeMat: M.leadDark, inner: false, pinch: 0.3, finialScale: 0.55 });
+  return era(g, from);
+}
+
+// Arcade (qantara / mawazin) at the head of a flight of steps up to the
+// platform. `dir` is the direction the steps descend.
+function qantara(M, scene, { X, Y, dir, width, bays, from = 951 }) {
+  const g = new THREE.Group();
+  const rot = { S: 0, N: Math.PI, E: Math.PI / 2, W: -Math.PI / 2 }[dir];
+  put(g, X, Y, 0, rot);
+  const st = stairsGeo(width, P, 0.25, 0.4);
+  g.add(mesh(st.geo, M.stone, { walk: true }));
+  const arc = mesh(arcadeGeo(width, 8.2, bays, 5.2, 0.8, 0.9), M.stoneWarm, { collide: true });
+  arc.position.set(0, P, -1.6);
+  g.add(arc);
+  for (let i = 0; i <= bays; i++) {
+    const c = mesh(cylGeo(0.36, 0.36, 5.2, 12), M.column, { collide: true });
+    c.position.set(-width / 2 + 0.4 + i * ((width - 0.8) / bays), P + 2.6, -1.6);
+    g.add(c);
+  }
+  scene.add(era(g, from));
+}
+
+// ---------------------------------------------------------------------------
+// The Dome of the Rock (Qubbat al-Sakhra), 691-692 CE / 72 AH.
+// Octagon side 20.6 m, drum 23.4 m across, top of dome about 35 m.
+
+function domeOfTheRock(M, scene) {
+  const g = new THREE.Group();
+  put(g, DOR[0], DOR[1], P);
+  const side = 20.6;
+  const inr = side / (2 * Math.tan(Math.PI / 8)); // 24.87 m
+  const t = 1.3;
+  const lowH = 5.2, upH = 6.4, wallH = lowH + upH;
+  for (let k = 0; k < 8; k++) {
+    const th = k * Math.PI / 4;
+    const door = k % 2 === 0;
+    const lower = mesh(
+      wallGeo(side, lowH, t, { doors: door ? [{ c: side / 2, w: 2.8, s: 4.3, flat: true }] : [] }),
+      M.marble, { collide: true });
+    const ux = Math.sin(th) * (inr - t / 2), uz = Math.cos(th) * (inr - t / 2);
+    lower.position.set(ux, 0, uz);
+    lower.rotation.y = th;
+    g.add(lower);
+    const mos = mesh(wallGeo(side, upH, t), M.faceMosaic);
+    mos.position.set(ux, lowH, uz);
+    mos.rotation.y = th;
+    g.add(era(mos, -Infinity, 1545));
+    const tile = mesh(wallGeo(side, upH, t), M.faceTile);
+    tile.position.set(ux, lowH, uz);
+    tile.rotation.y = th;
+    g.add(era(tile, 1545));
+  }
+  // parapet roof slope (lead)
+  const roof = mesh(cylGeo(12.7, inr / Math.cos(Math.PI / 8) + 0.2, 1.2, 8, true, Math.PI / 8), M.lead);
+  roof.position.y = wallH + 0.6;
+  g.add(roof);
+  // ceiling of the ambulatories with an opening under the drum
+  const shape = new THREE.Shape();
+  for (let k = 0; k <= 8; k++) {
+    const a = Math.PI / 8 + k * Math.PI / 4;
+    const rr = inr / Math.cos(Math.PI / 8);
+    if (k === 0) shape.moveTo(Math.sin(a) * rr, Math.cos(a) * rr);
+    else shape.lineTo(Math.sin(a) * rr, Math.cos(a) * rr);
+  }
+  const hole = new THREE.Path();
+  hole.absarc(0, 0, 11.3, 0, Math.PI * 2, true);
+  shape.holes.push(hole);
+  const ceil = mesh(new THREE.ShapeGeometry(shape, 24), M.ceiling, { cast: false });
+  ceil.geometry.rotateX(Math.PI / 2);
+  ceil.position.y = wallH;
+  g.add(ceil);
+  // floor: marble with red carpet in the ambulatories
+  const flShape = new THREE.Shape();
+  for (let k = 0; k <= 8; k++) {
+    const a = Math.PI / 8 + k * Math.PI / 4;
+    const rr = inr / Math.cos(Math.PI / 8);
+    if (k === 0) flShape.moveTo(Math.sin(a) * rr, Math.cos(a) * rr);
+    else flShape.lineTo(Math.sin(a) * rr, Math.cos(a) * rr);
+  }
+  const fl = mesh(new THREE.ShapeGeometry(flShape, 24), M.marble, { cast: false, walk: true });
+  fl.geometry.rotateX(-Math.PI / 2);
+  fl.position.y = 0.03;
+  g.add(fl);
+  const cp = new THREE.Shape();
+  for (let k = 0; k <= 8; k++) {
+    const a = Math.PI / 8 + k * Math.PI / 4;
+    const rr = (inr - t) / Math.cos(Math.PI / 8);
+    if (k === 0) cp.moveTo(Math.sin(a) * rr, Math.cos(a) * rr);
+    else cp.lineTo(Math.sin(a) * rr, Math.cos(a) * rr);
+  }
+  const cph = new THREE.Path();
+  cph.absarc(0, 0, 12, 0, Math.PI * 2, true);
+  cp.holes.push(cph);
+  const carpet = mesh(new THREE.ShapeGeometry(cp, 24), M.carpet, { cast: false, walk: true });
+  carpet.geometry.rotateX(-Math.PI / 2);
+  carpet.position.y = 0.06;
+  // carpet texture runs in metres; ShapeGeometry UVs already are
+  g.add(era(carpet, 1517));
+
+  // inner octagonal arcade: 8 piers and 16 columns
+  const r2 = 19.4;
+  const side2 = 2 * r2 * Math.sin(Math.PI / 8);
+  const inr2 = r2 * Math.cos(Math.PI / 8);
+  for (let k = 0; k < 8; k++) {
+    const th = k * Math.PI / 4;
+    const a = mesh(arcadeGeo(side2, wallH, 3, 6.2, 0.55, 0.65), M.marble, { collide: true });
+    a.position.set(Math.sin(th) * inr2, 0, Math.cos(th) * inr2);
+    a.rotation.y = th;
+    g.add(a);
+    // columns at bay boundaries along this side
+    const v0 = th - Math.PI / 8, v1 = th + Math.PI / 8;
+    const p0 = [Math.sin(v0) * r2, Math.cos(v0) * r2], p1 = [Math.sin(v1) * r2, Math.cos(v1) * r2];
+    for (let i = 0; i < 3; i++) {
+      const f = i / 3;
+      const isPier = i === 0;
+      const c = mesh(isPier ? boxGeo(1.6, 6.2, 1.6) : cylGeo(0.42, 0.42, 6.2, 14), isPier ? M.marble : M.column, { collide: true });
+      c.position.set(p0[0] + (p1[0] - p0[0]) * f, 3.1, p0[1] + (p1[1] - p0[1]) * f);
+      if (isPier) c.rotation.y = v0;
+      g.add(c);
+    }
+  }
+  // circular arcade under the drum: 4 piers and 12 columns
+  const r3 = 11.3;
+  const side3 = 2 * r3 * Math.sin(Math.PI / 16);
+  for (let k = 0; k < 16; k++) {
+    const th = (k + 0.5) * Math.PI / 8;
+    const a = mesh(arcadeGeo(side3 + 0.05, wallH, 1, 6.0, 0.6, 0.7), M.marble, { collide: true });
+    a.position.set(Math.sin(th) * r3 * Math.cos(Math.PI / 16), 0, Math.cos(th) * r3 * Math.cos(Math.PI / 16));
+    a.rotation.y = th;
+    g.add(a);
+    const ca = k * Math.PI / 8;
+    const isPier = k % 4 === 0;
+    const c = mesh(isPier ? boxGeo(1.7, 6.0, 1.7) : cylGeo(0.4, 0.4, 6.0, 14), isPier ? M.marble : M.column, { collide: true });
+    c.position.set(Math.sin(ca) * r3, 3.0, Math.cos(ca) * r3);
+    c.rotation.y = ca;
+    g.add(c);
+  }
+  // drum
+  const drumH = 9.4;
+  const drumOut = mesh(cylGeo(11.7, 11.7, drumH, 48, true), M.drumTile);
+  drumOut.position.y = wallH + drumH / 2;
+  g.add(era(drumOut, 1545));
+  const drumOutM = mesh(cylGeo(11.7, 11.7, drumH, 48, true), M.drumMosaic);
+  drumOutM.position.y = wallH + drumH / 2;
+  g.add(era(drumOutM, -Infinity, 1545));
+  const drumIn = mesh(cylGeo(11.25, 11.25, drumH, 48, true), M.drumMosaic, { cast: false });
+  drumIn.position.y = wallH + drumH / 2;
+  g.add(drumIn);
+  const ring = mesh(cylGeo(12.1, 12.1, 0.5, 48), M.stone);
+  ring.position.y = wallH + drumH;
+  g.add(ring);
+  // the dome: gilded (Umayyad), lead (from the 1022 rebuild), gold-anodised
+  // aluminium (1964), gold leaf over copper (1994)
+  const domeTop = wallH + drumH + 0.2;
+  const domeH = 13.6;
+  const variants = [
+    [M.goldPale, -Infinity, 1022],
+    [M.leadDark, 1022, 1964],
+    [M.goldPale, 1964, 1994],
+    [M.gold, 1994, Infinity],
+  ];
+  for (const [m, a, b] of variants) {
+    const d = mesh(domeGeo(12.0, domeH, { pinch: 0.2, bulb: 0.02, seg: 64 }), m);
+    d.position.y = domeTop;
+    g.add(era(d, a, b));
+  }
+  const di = mesh(domeGeo(11.3, domeH - 0.8, { pinch: 0.2, seg: 64 }), M.domeInner, { cast: false });
+  di.position.y = domeTop;
+  g.add(di);
+  for (const [cross, a, b] of [[false, -Infinity, 1099], [true, 1099, 1187], [false, 1187, Infinity]]) {
+    const f = finial(1.1, M.brass, cross);
+    f.position.y = domeTop + domeH - 0.2;
+    g.add(era(f, a, b));
+  }
+  // the Rock itself, enclosed by a wooden screen
+  const rg = new THREE.IcosahedronGeometry(1, 3);
+  const pr = rng(42);
+  const pa = rg.attributes.position;
+  for (let i = 0; i < pa.count; i++) {
+    const s = 0.85 + pr() * 0.3;
+    pa.setXYZ(i, pa.getX(i) * s, Math.max(-0.2, pa.getY(i)) * s, pa.getZ(i) * s);
+  }
+  rg.computeVertexNormals();
+  const rock = mesh(rg, M.rock, { collide: true });
+  rock.scale.set(8.5, 1.7, 6.5);
+  rock.position.set(0.5, -0.1, 0.4);
+  g.add(rock);
+  const screen = mesh(cylGeo(9.6, 9.6, 1.5, 32, true), M.wood, { collide: true });
+  screen.position.y = 0.75;
+  g.add(screen);
+  // porches at the four doors
+  for (let k = 0; k < 4; k++) {
+    const th = k * Math.PI / 2;
+    const big = k === 0;
+    const w = big ? 13 : 8, dpt = big ? 4.8 : 3.2, ph = 7.2;
+    const pg = new THREE.Group();
+    pg.rotation.y = th;
+    const front = mesh(arcadeGeo(w, ph, big ? 4 : 3, 4.8, 0.5, 0.6), M.marble, { collide: true });
+    front.position.set(0, 0, inr + dpt);
+    pg.add(front);
+    const roofP = mesh(boxGeo(w + 0.6, 0.5, dpt + 0.4), M.lead);
+    roofP.position.set(0, ph + 0.25, inr + dpt / 2);
+    pg.add(roofP);
+    const ceilP = mesh(boxGeo(w, 0.05, dpt), M.ceiling, { cast: false });
+    ceilP.position.set(0, ph - 0.03, inr + dpt / 2);
+    pg.add(ceilP);
+    for (const sx of [-1, 1]) {
+      const sw = mesh(wallGeo(dpt, ph, 0.6, { doors: [{ c: dpt / 2, w: dpt - 1.2, s: 3.6 }] }), M.marble, { collide: true });
+      sw.position.set(sx * (w / 2 - 0.3), 0, inr + dpt / 2);
+      sw.rotation.y = Math.PI / 2;
+      pg.add(sw);
+    }
+    g.add(pg);
+  }
+  scene.add(era(g, 691));
+  R.minimap.push({ type: 'oct', X: DOR[0], Y: DOR[1], r: 26.9, color: '#d9b44a', from: 691 });
+  landmark({
+    id: 'dor', name: 'Dome of the Rock', ar: 'قبة الصخرة', built: '691–692 CE · 72 AH',
+    X: DOR[0], Y: DOR[1], r: 34, from: 691, h: P,
+    text: 'Built by the Umayyad caliph Abd al-Malik ibn Marwan over the Rock from which the Prophet ﷺ ascended on the Night Journey. An octagon of 20.6 m sides; its drum and dome rise about 35 m. Inside, two ambulatories ring the Rock.',
+  });
+  landmark({
+    id: 'rock', name: 'The Rock (al-Sakhra)', ar: 'الصخرة المشرفة', built: 'Bedrock of Mount Moriah',
+    X: DOR[0], Y: DOR[1], r: 10, from: 691, h: P,
+    text: 'The summit of the mount, enclosed by a wooden screen. Beneath it lies the small cave known as the Well of Souls (Maghārat al-Arwāḥ).',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// The Dome of the Chain (Qubbat al-Silsila), Umayyad.
+
+function domeOfTheChain(M, scene) {
+  const g = new THREE.Group();
+  put(g, 179, 292, P);
+  const n = 11, r = 6.6;
+  const side = 2 * r * Math.sin(Math.PI / n);
+  const inr = r * Math.cos(Math.PI / n);
+  for (let k = 0; k < n; k++) {
+    const th = (k + 0.5) * (2 * Math.PI / n);
+    const isMihrab = k === 0;
+    const w = mesh(isMihrab ? wallGeo(side + 0.05, 5.6, 0.5) : arcadeGeo(side + 0.05, 5.6, 1, 3.4, 0.45, 0.5), isMihrab ? M.marble : M.stone, { collide: true });
+    w.position.set(Math.sin(th) * inr, 0, Math.cos(th) * inr);
+    w.rotation.y = th;
+    g.add(w);
+    const ca = k * (2 * Math.PI / n);
+    const col = mesh(cylGeo(0.24, 0.24, 3.4, 10), M.column, { collide: true });
+    col.position.set(Math.sin(ca) * r, 1.7, Math.cos(ca) * r);
+    g.add(col);
+  }
+  const roof = mesh(cylGeo(3.1, r + 0.4, 0.7, n, false, Math.PI / n), M.lead);
+  roof.position.y = 5.95;
+  g.add(roof);
+  const ri = 2.7;
+  for (let k = 0; k < 6; k++) {
+    const th = (k + 0.5) * Math.PI / 3;
+    const w = mesh(arcadeGeo(ri + 0.05, 6.2, 1, 4.0, 0.4, 0.45), M.stone, { collide: true });
+    w.position.set(Math.sin(th) * ri * Math.cos(Math.PI / 6), 0, Math.cos(th) * ri * Math.cos(Math.PI / 6));
+    w.rotation.y = th;
+    g.add(w);
+  }
+  const fl = mesh(cylGeo(r + 0.5, r + 0.5, 0.2, n), M.marble, { walk: true });
+  fl.position.y = 0.1;
+  g.add(fl);
+  domeOn(g, M, { y: 6.3, r: 3.0, h: 3.2, domeMat: M.leadDark, drumH: 1.4, drumMat: M.drumTile, finialScale: 0.55 });
+  scene.add(era(g, 691));
+  R.minimap.push({ type: 'circle', X: 179, Y: 292, r: 7, color: '#b9b2a4', from: 691 });
+  landmark({
+    id: 'chain', name: 'Dome of the Chain', ar: 'قبة السلسلة', built: 'Umayyad, c. 691 CE',
+    X: 179, Y: 292, r: 11, from: 691, h: P,
+    text: 'An open pavilion of eleven outer and six inner columns east of the Dome of the Rock, attributed to Abd al-Malik. Its tiled drum is Ottoman; the mihrab on its south side was added in the Ayyubid period.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Al-Jami' al-Aqsa (the Qibli Mosque) in its successive forms.
+
+function qibli(M, opts) {
+  const { x0, x1, y0, y1, aisles, porch, from, to, domeVariants } = opts;
+  const g = new THREE.Group();
+  const W = x1 - x0, L = y1 - y0, c = (x0 + x1) / 2;
+  const H = 11, Hn = 15, t = 1.6, nave = 11;
+  const cross = 11; // square bay under the dome
+
+  const addAt = (m, X, Y, y = 0, rot = 0) => { put(m, X, Y, y, rot); g.add(m); return m; };
+
+  // qibla (south) wall
+  addAt(mesh(boxGeo(W + 2 * t, Hn, t), M.stoneWarm, { collide: true }), c, y0 - t / 2, Hn / 2);
+  // north facade, one door per aisle
+  const k = (aisles - 1) / 2;
+  const sideW = (W - nave) / 2 / k;
+  const centres = [];
+  for (let i = 0; i < k; i++) centres.push(x0 + (i + 0.5) * sideW);
+  centres.push(c);
+  for (let i = 0; i < k; i++) centres.push(c + nave / 2 + (i + 0.5) * sideW);
+  const doors = centres.map((X) => ({ c: X - x0 + t, w: X === c ? 3.6 : 2.8, s: X === c ? 5.6 : 4.4 }));
+  addAt(mesh(wallGeo(W + 2 * t, H, t, { doors }), M.stoneWarm, { collide: true }), c, y1 + t / 2);
+  // nave clerestory gable on the facade
+  addAt(mesh(boxGeo(nave + 1, Hn - H, t), M.stoneWarm), c, y1 + t / 2, H + (Hn - H) / 2);
+  const gab = new THREE.Shape();
+  gab.moveTo(-nave / 2 - 0.5, 0);
+  gab.lineTo(nave / 2 + 0.5, 0);
+  gab.lineTo(0, 3.2);
+  gab.lineTo(-nave / 2 - 0.5, 0);
+  const gabGeo = new THREE.ExtrudeGeometry(gab, { depth: t, bevelEnabled: false });
+  gabGeo.translate(0, 0, -t / 2);
+  addAt(mesh(gabGeo, M.stoneWarm), c, y1 + t / 2, Hn);
+  // side walls with windows and a door
+  const sideWins = [];
+  for (let s = 4; s < L - 2; s += 6) sideWins.push({ c: s, y: 6.4, w: 1.5, h: 2.2 });
+  for (const sx of [-1, 1]) {
+    const X = sx < 0 ? x0 - t / 2 : x1 + t / 2;
+    const wl = mesh(wallGeo(L, H, t, { windows: sideWins, doors: [{ c: L * 0.55, w: 3, s: 4.4 }] }), M.stoneWarm, { collide: true });
+    addAt(wl, X, (y0 + y1) / 2, 0, Math.PI / 2);
+  }
+  // colonnades
+  const colLines = [];
+  for (let i = 1; i < k; i++) colLines.push({ X: x0 + i * sideW, h: H, s: 6.6 });
+  colLines.push({ X: c - nave / 2, h: Hn, s: 9.6 }, { X: c + nave / 2, h: Hn, s: 9.6 });
+  for (let i = 1; i < k; i++) colLines.push({ X: c + nave / 2 + i * sideW, h: H, s: 6.6 });
+  for (const cl of colLines) {
+    const bays = Math.round(L / 5.2);
+    const a = mesh(arcadeGeo(L, cl.h, bays, cl.s, 0.7, 0.8), M.stone, { collide: true });
+    addAt(a, cl.X, (y0 + y1) / 2, 0, Math.PI / 2);
+    for (let i = 1; i < bays; i++) {
+      const col = mesh(cylGeo(0.42, 0.42, cl.s, 14), M.column, { collide: true });
+      addAt(col, cl.X, y0 + (i * L) / bays, cl.s / 2);
+    }
+  }
+  // roofs: aisles flat (lead over painted ceilings), nave gabled
+  for (const sx of [-1, 1]) {
+    const xa = sx < 0 ? x0 - t : c + nave / 2;
+    const xb = sx < 0 ? c - nave / 2 : x1 + t;
+    const slab = mesh(boxGeo(xb - xa, 0.7, L + t), [M.lead, M.lead, M.lead, M.ceiling, M.lead, M.lead]);
+    addAt(slab, (xa + xb) / 2, (y0 + y1) / 2 + t / 2, H + 0.35);
+  }
+  const naveL = L - cross;
+  const navePrism = new THREE.Shape();
+  navePrism.moveTo(-nave / 2 - 0.8, 0);
+  navePrism.lineTo(nave / 2 + 0.8, 0);
+  navePrism.lineTo(0, 3.2);
+  navePrism.lineTo(-nave / 2 - 0.8, 0);
+  const npGeo = new THREE.ExtrudeGeometry(navePrism, { depth: naveL, bevelEnabled: false });
+  npGeo.translate(0, 0, -naveL / 2);
+  // ExtrudeGeometry runs along local z, i.e. north-south along the nave
+  addAt(mesh(npGeo, M.lead), c, y0 + cross + naveL / 2, Hn);
+  const nc = mesh(boxGeo(nave, 0.05, naveL), M.ceiling, { cast: false });
+  addAt(nc, c, y0 + cross + naveL / 2, Hn - 0.03);
+  // crossing slab with an opening for the dome
+  const cs = new THREE.Shape();
+  cs.moveTo(-nave / 2, -cross / 2);
+  cs.lineTo(nave / 2, -cross / 2);
+  cs.lineTo(nave / 2, cross / 2);
+  cs.lineTo(-nave / 2, cross / 2);
+  cs.lineTo(-nave / 2, -cross / 2);
+  const ch = new THREE.Path();
+  ch.absarc(0, 0, 5.2, 0, Math.PI * 2, true);
+  cs.holes.push(ch);
+  const csGeo = new THREE.ShapeGeometry(cs, 24);
+  csGeo.rotateX(Math.PI / 2);
+  addAt(mesh(csGeo, M.ceiling, { cast: false }), c, y0 + cross / 2, Hn);
+  const csTop = mesh(new THREE.ExtrudeGeometry(cs, { depth: 0.6, bevelEnabled: false, curveSegments: 24 }), M.lead);
+  csTop.geometry.rotateX(-Math.PI / 2);
+  addAt(csTop, c, y0 + cross / 2, Hn);
+  // dome over the bay in front of the mihrab
+  const dg = new THREE.Group();
+  addAt(dg, c, y0 + cross / 2, Hn + 0.6);
+  const drum = mesh(cylGeo(5.6, 5.6, 3.2, 40, true), M.stoneWarm);
+  drum.position.y = 1.6;
+  dg.add(drum);
+  for (const [m, a, b] of domeVariants) {
+    const d = mesh(domeGeo(6.0, 6.2, { pinch: 0.12 }), m);
+    d.position.y = 3.2;
+    dg.add(era(d, a, b));
+  }
+  const di = mesh(domeGeo(5.4, 5.8, { pinch: 0.12 }), M.domeInner, { cast: false });
+  di.position.y = 3.2;
+  dg.add(di);
+  for (const [cross2, a, b] of [[false, -Infinity, 1099], [true, 1099, 1187], [false, 1187, Infinity]]) {
+    const f = finial(0.7, M.brass, cross2);
+    f.position.y = 3.2 + 6.1;
+    dg.add(era(f, a, b));
+  }
+  // carpet
+  const cp = mesh(floorGeo(rect(x0, y0, x1, y1)), M.carpet, { cast: false, walk: true });
+  cp.position.y = 0.04;
+  g.add(cp);
+  // mihrab
+  const mih = new THREE.Group();
+  addAt(mih, c, y0 + 0.1, 0);
+  const frame = mesh(wallGeo(4.4, 6.2, 0.3, { doors: [{ c: 2.2, w: 2.2, s: 3.6 }] }), M.marble);
+  frame.position.z = 0.15;
+  mih.add(frame);
+  const niche = mesh(wallGeo(2.3, 5.4, 0.1), M.mihrab, { cast: false });
+  niche.position.z = 0.02;
+  mih.add(niche);
+  for (const sx of [-1, 1]) {
+    const col = mesh(cylGeo(0.14, 0.14, 3.6, 10), M.column);
+    col.position.set(sx * 1.2, 1.8, 0.4);
+    mih.add(col);
+  }
+  // porch (Ayyubid, 1217)
+  if (porch) {
+    const pg = new THREE.Group();
+    g.add(era(pg, porch));
+    const addP = (m, X, Y, y = 0, rot = 0) => { put(m, X, Y, y, rot); pg.add(m); };
+    const pw = W - 6, pd = 7, ph = 10;
+    addP(mesh(arcadeGeo(pw, ph, 7, 5.6, 1.3, 1.4), M.stoneWarm, { collide: true }), c, y1 + t + pd);
+    const pr = mesh(boxGeo(pw, 0.6, pd + 0.6), [M.lead, M.lead, M.lead, M.ceiling, M.lead, M.lead]);
+    addP(pr, c, y1 + t + pd / 2, ph + 0.3);
+    for (const sx of [-1, 1]) {
+      addP(mesh(wallGeo(pd, ph, 1.2, { doors: [{ c: pd / 2, w: 3, s: 4 }] }), M.stoneWarm, { collide: true }), c + sx * (pw / 2 - 0.6), y1 + t + pd / 2, 0, Math.PI / 2);
+    }
+    const pf = mesh(floorGeo(rect(c - pw / 2, y1 + t, c + pw / 2, y1 + t + pd)), M.marble, { cast: false, walk: true });
+    pf.position.y = 0.05;
+    pg.add(pf);
+  }
+  return era(g, from, to);
+}
+
+function minbar(M) {
+  // The minbar commissioned by Nur al-Din and installed by Salah al-Din.
+  const g = new THREE.Group();
+  const len = 5.2, w = 1.1, top = 2.4;
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.lineTo(len, 0);
+  s.lineTo(len, top + 0.9);
+  s.lineTo(len - 1.2, top + 0.9);
+  s.lineTo(0.6, 0.9);
+  s.lineTo(0, 0.9);
+  s.lineTo(0, 0);
+  const geo = new THREE.ExtrudeGeometry(s, { depth: w, bevelEnabled: false });
+  geo.translate(0, 0, -w / 2);
+  const body = mesh(geo, M.wood, { collide: true });
+  body.rotation.y = Math.PI / 2; // run toward the qibla (south)
+  body.position.z = len;
+  g.add(body);
+  for (const sx of [-1, 1]) for (const sz of [0.1, 1.1]) {
+    const post = mesh(cylGeo(0.06, 0.06, 2.2, 6), M.wood);
+    post.position.set(sx * 0.5, top + 1.1 + 0.9 - 0.9, sz);
+    g.add(post);
+  }
+  const cap = mesh(new THREE.ConeGeometry(0.8, 1.8, 8), M.wood);
+  cap.position.set(0, top + 2.9, 0.6);
+  g.add(cap);
+  const portal = mesh(wallGeo(1.6, 3.2, 0.3, { doors: [{ c: 0.8, w: 1.0, s: 2.0 }] }), M.wood);
+  portal.position.set(0, 0, len + 0.15);
+  g.add(portal);
+  return g;
+}
+
+function qibliMosques(M, scene) {
+  // 638: the timber prayer house of Umar ibn al-Khattab, at the south of the
+  // enclosure, which Arculf (c. 680) described as holding some 3,000 people.
+  {
+    const g = new THREE.Group();
+    const x0 = 106, x1 = 170, y0 = 3, y1 = 46, h = 5.2;
+    const add = (m, X, Y, y = 0, rot = 0) => { put(m, X, Y, y, rot); g.add(m); };
+    add(mesh(boxGeo(x1 - x0 + 1, h, 1), M.wallOld, { collide: true }), (x0 + x1) / 2, y0 - 0.5, h / 2);
+    const nd = [];
+    for (let X = 4; X < x1 - x0; X += 8) nd.push({ c: X, w: 3, s: 3.6, flat: true });
+    add(mesh(wallGeo(x1 - x0 + 1, h, 0.8, { doors: nd }), M.wallOld, { collide: true }), (x0 + x1) / 2, y1 + 0.4);
+    for (const X of [x0 - 0.4, x1 + 0.4]) {
+      add(mesh(wallGeo(y1 - y0, h, 0.8, { doors: [{ c: (y1 - y0) / 2, w: 3, s: 3.6, flat: true }] }), M.wallOld, { collide: true }), X, (y0 + y1) / 2, 0, Math.PI / 2);
+    }
+    for (let X = x0 + 5; X < x1; X += 6) for (let Y = y0 + 5; Y < y1; Y += 6) {
+      add(mesh(boxGeo(0.4, h, 0.4), M.wood, { collide: true }), X, Y, h / 2);
+    }
+    add(mesh(boxGeo(x1 - x0 + 2, 0.5, y1 - y0 + 2), M.wood), (x0 + x1) / 2, (y0 + y1) / 2, h + 0.25);
+    const fl = mesh(floorGeo(rect(x0, y0, x1, y1)), M.wood, { cast: false, walk: true });
+    fl.position.y = 0.04;
+    g.add(fl);
+    scene.add(era(g, 638, 705));
+    R.minimap.push({ type: 'poly', pts: rect(x0, y0, x1, y1), color: '#8a6a45', from: 638, to: 705 });
+  }
+  // c. 705-1033: the Umayyad mosque of al-Walid I, rebuilt by the Abbasids
+  // after the earthquake of 746; 15 aisles.
+  scene.add(qibli(M, {
+    x0: 92, x1: 184, y0: 3, y1: 88, aisles: 15, porch: false, from: 705, to: 1035,
+    domeVariants: [[M.lead, -Infinity, Infinity]],
+  }));
+  R.minimap.push({ type: 'poly', pts: rect(92, 3, 184, 88), color: '#a99f8e', from: 705, to: 1035 });
+  // 1035-today: the Fatimid rebuilding by al-Zahir, reduced to 7 aisles.
+  const q = qibli(M, {
+    x0: 110.5, x1: 165.5, y0: 3, y1: 83, aisles: 7, porch: 1217, from: 1035,
+    domeVariants: [[M.lead, -Infinity, 1964], [M.alu, 1964, 1983], [M.lead, 1983, Infinity]],
+  });
+  scene.add(q);
+  R.minimap.push({ type: 'poly', pts: rect(110.5, 3, 165.5, 83), color: '#a99f8e', from: 1035 });
+  // minbar of Salah al-Din: 1187-1969, replica from 2007
+  for (const [a, b] of [[1187, 1969], [2007, Infinity]]) {
+    const mb = minbar(M);
+    put(mb, 133.2, 3.4, 0);
+    scene.add(era(mb, a, b));
+  }
+  // the arson of 21 August 1969
+  const soot = new THREE.Group();
+  const sw = mesh(boxGeo(30, 14, 0.05), M.soot, { cast: false });
+  put(sw, 145, 3.2, 7.2);
+  soot.add(sw);
+  const sc = mesh(boxGeo(30, 0.05, 30), M.soot, { cast: false });
+  put(sc, 147, 18, 10.9);
+  soot.add(sc);
+  scene.add(era(soot, 1969, 1972));
+
+  landmark({
+    id: 'umar', name: 'Prayer house of Umar', ar: 'مصلى عمر بن الخطاب', built: '638 CE · 16 AH',
+    X: 138, Y: 25, r: 40, from: 638, to: 705,
+    text: 'After the city was handed over to Caliph Umar ibn al-Khattab, the Muslims cleared the neglected mount and raised a simple prayer house of timber at its southern end, facing the qibla in Makkah.',
+  });
+  landmark({
+    id: 'qibli-um', name: 'Al-Jami’ al-Aqsa (Umayyad–Abbasid)', ar: 'الجامع الأقصى', built: 'c. 705–715 CE; rebuilt 780',
+    X: 138, Y: 45, r: 50, from: 705, to: 1035,
+    text: 'Completed by al-Walid I. Damaged in the earthquake of 746 and rebuilt by the Abbasid caliphs al-Mansur and al-Mahdi with 15 aisles running toward the qibla.',
+  });
+  landmark({
+    id: 'qibli', name: 'Al-Jami’ al-Qibli (al-Aqsa Mosque)', ar: 'الجامع القبلي', built: 'Fatimid 1035 CE, on Umayyad foundations',
+    X: 138, Y: 43, r: 44, from: 1035,
+    text: 'Rebuilt by the Fatimid caliph al-Zahir after the 1033 earthquake with seven aisles; its dome stands over the bay before the mihrab. The porch of seven arches dates from 1217. Restored 1938–43 and after the 1969 arson.',
+  });
+  landmark({
+    id: 'minbar', name: 'Minbar of Salah al-Din', ar: 'منبر صلاح الدين', built: 'Made 1168–74, installed 1187',
+    X: 133, Y: 6, r: 6, from: 1187,
+    text: 'Commissioned in Aleppo by Nur al-Din Zangi for the liberation of al-Aqsa and installed by Salah al-Din in 1187. Burned in the arson of 1969; a faithful replica was installed in 2007.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Compound walls, gates and riwaqs.
+
+function edgeInfo(i) {
+  const a = COMPOUND[i], b = COMPOUND[(i + 1) % 4];
+  const dX = b[0] - a[0], dY = b[1] - a[1];
+  const L = Math.hypot(dX, dY);
+  return { a, b, L, ux: dX / L, uy: dY / L, rot: Math.atan2(dY, dX) };
+}
+function edgePt(e, d, inward = 0) {
+  // inward = to the left of a CCW edge
+  return [e.a[0] + e.ux * d - e.uy * inward, e.a[1] + e.uy * d + e.ux * inward];
+}
+
+const GATES = {
+  2: [ // north edge, from NE to NW
+    { d: 23, name: 'Bab al-Asbat', ar: 'باب الأسباط', text: 'The Gate of the Tribes, the main entrance from the north-east of the Old City.' },
+    { d: 105, name: 'Bab Hitta', ar: 'باب حطة', text: 'The Gate of Remission; its name recalls the word the Children of Israel were commanded to say.' },
+    { d: 175, name: 'Bab al-Atm (Bab Faysal)', ar: 'باب العتم', text: 'The Gate of Darkness, renamed for King Faysal I of Iraq after his visit in 1930.' },
+  ],
+  3: [ // west edge, from NW to SW
+    { d: 20, name: 'Bab al-Ghawanima', ar: 'باب الغوانمة', text: 'Named for the Ghanim family; beside it rises the tallest of the minarets.' },
+    { d: 150, name: 'Bab al-Nazir', ar: 'باب الناظر', text: 'The Gate of the Inspector, also called Bab al-Majlis.' },
+    { d: 185, name: 'Bab al-Hadid', ar: 'باب الحديد', text: 'The Iron Gate, framed by Mamluk buildings.' },
+    { d: 215, name: 'Bab al-Qattanin', ar: 'باب القطانين', text: 'The Gate of the Cotton Merchants, built in 1336 by Tankiz with its market street.' },
+    { d: 245, name: 'Bab al-Mathara', ar: 'باب المطهرة', text: 'The Gate of Ablution.' },
+    { d: 285, name: 'Bab al-Silsila', ar: 'باب السلسلة', text: 'The Gate of the Chain, with its twin Bab al-Sakina; the principal western entrance.' },
+    { d: 410, name: 'Bab al-Magharibah', ar: 'باب المغاربة', text: 'The Moroccans’ Gate, once reached through the Mughrabi Quarter. Its keys have been held by the occupation authorities since 1967.' },
+  ],
+};
+
+function compoundWalls(M, scene) {
+  const tops = [7.5, 7.5, 11, 11];
+  for (let i = 0; i < 4; i++) {
+    const e = edgeInfo(i);
+    const th = 3;
+    const mid = edgePt(e, e.L / 2, -th / 2);
+    const found = mesh(boxGeo(e.L + th * 2, 70, th), M.wallOld, { collide: true });
+    put(found, mid[0], mid[1], -35, e.rot);
+    scene.add(found);
+    const gates = GATES[i] || [];
+    const doors = gates.map((gt) => ({ c: gt.d + th, w: 4, s: 4.6 }));
+    const w = mesh(wallGeo(e.L + th * 2, tops[i], th, { doors }), M.wallOld, { collide: true });
+    put(w, mid[0], mid[1], 0, e.rot);
+    scene.add(w);
+    // crenellations on the Ottoman city-wall stretches (south and east)
+    if (i < 2) {
+      const parts = [];
+      for (let d = 1; d < e.L; d += 2.2) {
+        const b = boxGeo(1.1, 1.2, th);
+        b.translate(d - e.L / 2, tops[i] + 0.6, 0);
+        parts.push(b);
+      }
+      const cren = mesh(mergeGeos(parts), M.wallOld);
+      put(cren, mid[0], mid[1], 0, e.rot);
+      scene.add(cren);
+    }
+    for (const gt of gates) {
+      const p = edgePt(e, gt.d, 2);
+      landmark({ id: 'gate-' + gt.name, name: gt.name, ar: gt.ar, built: 'Gate of al-Aqsa', X: p[0], Y: p[1], r: 9, text: gt.text });
+      R.minimap.push({ type: 'gate', X: p[0], Y: p[1], color: '#e9dcc0' });
+    }
+  }
+  R.minimap.push({ type: 'wall', pts: COMPOUND, color: '#cdbb92' });
+
+  // Mamluk riwaqs (porticoes) along the west and north walls, with the
+  // upper storeys of madrasas and residences above them.
+  const riwaq = (edge, d0, d1, from) => {
+    const e = edgeInfo(edge);
+    const len = d1 - d0, depth = 5.5, h = 7;
+    const p = edgePt(e, (d0 + d1) / 2, depth);
+    const bays = Math.round(len / 4.6);
+    const a = mesh(arcadeGeo(len, h, bays, 4.4, 1.0, 1.0), M.stoneWarm, { collide: true });
+    put(a, p[0], p[1], 0, e.rot);
+    scene.add(era(a, from));
+    const rp = edgePt(e, (d0 + d1) / 2, depth / 2);
+    const roof = mesh(boxGeo(len, 0.6, depth + 0.6), [M.stone, M.stone, M.stone, M.ceiling, M.stone, M.stone]);
+    put(roof, rp[0], rp[1], h + 0.3, e.rot);
+    scene.add(era(roof, from));
+    const upper = mesh(wallGeo(len, 5.5, 1, { windows: Array.from({ length: Math.floor(len / 6) }, (_, j) => ({ c: 3 + j * 6, y: 1.6, w: 1.2, h: 1.6 })) }), M.stoneWarm);
+    put(upper, p[0], p[1], h + 0.6, e.rot);
+    scene.add(era(upper, from));
+    const fl = mesh(floorGeo([edgePt(e, d0, 0), edgePt(e, d1, 0), edgePt(e, d1, depth), edgePt(e, d0, depth)]), M.paving, { cast: false, walk: true });
+    fl.position.y = 0.05;
+    scene.add(fl);
+  };
+  riwaq(3, 12, 236, 1300);
+  riwaq(3, 300, 395, 1300);
+  riwaq(2, 40, 300, 1300);
+  landmark({ id: 'riwaq', name: 'Western Riwaq', ar: 'الرواق الغربي', built: 'Mamluk, 1307–1336', X: 4, Y: 380, r: 12, from: 1300, text: 'Covered porticoes built along the western and northern walls under the Mamluks, with madrasas and lodgings above.' });
+
+  // The outer face of the south-western wall: al-Buraq Wall.
+  const buraq = mesh(boxGeo(3.4, 16, 56), M.herodian, { collide: true });
+  put(buraq, westX(114) - 1.6, 114, -5);
+  scene.add(buraq);
+  landmark({
+    id: 'buraq', name: 'Al-Buraq Wall', ar: 'حائط البراق', built: 'Western wall of al-Aqsa',
+    X: -30, Y: 114, r: 45, h: -12,
+    text: 'Part of the western wall of al-Aqsa, where by tradition the Prophet ﷺ tethered al-Buraq on the Night Journey. In 1930 an international commission confirmed it as Islamic waqf property.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Courtyard: ground, platform, paving, trees.
+
+function courtyard(M, scene) {
+  const hole = rect(214, 64, 224, 86);
+  const g1 = mesh(floorGeo(COMPOUND), M.earth, { cast: false, walk: true });
+  scene.add(era(g1, -Infinity, 1996));
+  const g2 = mesh(floorGeo(COMPOUND, [hole]), M.earth, { cast: false, walk: true });
+  scene.add(era(g2, 1996));
+  const pave = (poly, y = 0.02, m = M.paving) => {
+    const p = mesh(floorGeo(poly), m, { cast: false, walk: true });
+    p.position.y = y;
+    scene.add(p);
+  };
+  pave([[0, 0], [205, 0], [205, 214], [0, 214]]);
+  pave([[0, 214], [70, 214], [70, 470], [westX(470) + 1, 470], [westX(214), 214]], 0.025);
+  pave(rect(115, 362, 128, northY(121) - 1), 0.025);
+  pave(rect(184, 362, 196, northY(190) - 1), 0.025);
+  pave(rect(212, 326, 276, 336), 0.025);
+  pave(rect(70, 214, 214, 222), 0.03);
+
+  // the raised platform of the Dome of the Rock
+  const plat = mesh(boxGeo(140, P, 142), [M.wallOld, M.wallOld, M.paving, M.wallOld, M.wallOld, M.wallOld], { collide: true, walk: true });
+  put(plat, 142, 291, P / 2);
+  scene.add(plat);
+  R.minimap.push({ type: 'poly', pts: rect(72, 220, 212, 362), color: '#d8ccb2', fill: true });
+
+  // arcades and steps up to the platform
+  qantara(M, scene, { X: 138, Y: 220, dir: 'S', width: 16, bays: 4, from: 951 });
+  qantara(M, scene, { X: 92, Y: 220, dir: 'S', width: 10, bays: 3, from: 1211 });
+  qantara(M, scene, { X: 72, Y: 262, dir: 'W', width: 12, bays: 3, from: 1321 });
+  qantara(M, scene, { X: 72, Y: 318, dir: 'W', width: 12, bays: 3, from: 1472 });
+  qantara(M, scene, { X: 120, Y: 362, dir: 'N', width: 12, bays: 3, from: 1321 });
+  qantara(M, scene, { X: 185, Y: 362, dir: 'N', width: 10, bays: 3, from: 1326 });
+  qantara(M, scene, { X: 212, Y: 292, dir: 'E', width: 12, bays: 3, from: 1030 });
+  landmark({ id: 'mizan', name: 'Southern Arcade (al-Mawazin)', ar: 'قناطر الموازين', built: 'c. 951 CE, rebuilt Fatimid & Mamluk', X: 138, Y: 216, r: 12, h: 0, text: 'The arcades crowning each stairway to the platform are called al-Mawazin, the Scales: tradition holds that the scales of the Day of Judgement will hang here.' });
+
+  // plain stairs where no arcade survives (used before the arcades)
+  for (const s of [[138, 220, 0], [72, 262, -Math.PI / 2], [212, 292, Math.PI / 2], [120, 362, Math.PI]]) {
+    const st = stairsGeo(14, P, 0.25, 0.4);
+    const m = mesh(st.geo, M.wallOld, { walk: true });
+    put(m, s[0], s[1], 0, s[2]);
+    scene.add(era(m, -Infinity, 951));
+  }
+
+  // trees: cypress rows and olive groves
+  const r = rng(2024);
+  const cypress = [], olives = [];
+  for (let X = 76; X < 210; X += 7) if (Math.abs(X - 138) > 11 && Math.abs(X - 92) > 8) cypress.push([X, 210 + r() * 2]);
+  for (let a = 0; a < 10; a++) cypress.push([138 + Math.cos(a / 10 * 6.283) * 13, 160 + Math.sin(a / 10 * 6.283) * 13]);
+  for (let Y = 110; Y < 460; Y += 9) if (!(Y > 236 && Y < 262) && Math.abs(Y - 262) > 9 && Math.abs(Y - 318) > 9) cypress.push([60 + r() * 4, Y]);
+  const avoid = [rect(72, 214, 214, 368), rect(110, 360, 132, 495), rect(180, 360, 200, 495), rect(205, 320, 300, 342),
+    rect(196, 60, 230, 92), rect(0, 0, 205, 98), rect(265, 455, 300, 495), rect(0, 455, 30, 495)];
+  const inAvoid = (X, Y) => avoid.some(([[a, b], , [c2, d]]) => X > a && X < c2 && Y > b && Y < d);
+  for (let i = 0; i < 260; i++) {
+    const X = 72 + r() * 215, Y = 92 + r() * 390;
+    if (!insideCompound(X - 6, Y) || !insideCompound(X + 6, Y + 6) || inAvoid(X, Y)) continue;
+    if (X < 210 && Y > 214 && Y < 370) continue;
+    olives.push([X, Y, 0.8 + r() * 0.5]);
+  }
+  for (let i = 0; i < 40; i++) {
+    const X = 10 + r() * 190, Y = 100 + r() * 110;
+    if (Math.hypot(X - 138, Y - 160) < 16 || (X > 100 && X < 176 && Y < 112) || X < 66) continue;
+    olives.push([X, Y, 0.7 + r() * 0.4]);
+  }
+  addTrees(M, scene, cypress, olives, (X, Y) => 0);
+
+  // Al-Kas ablution fountain
+  const kas = new THREE.Group();
+  put(kas, 138, 160, 0);
+  const basin = mesh(cylGeo(4.4, 4.6, 0.8, 40), M.marble, { collide: true });
+  basin.position.y = 0.4;
+  kas.add(basin);
+  const water = mesh(new THREE.CircleGeometry(4.0, 40), M.water, { cast: false });
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = 0.81;
+  kas.add(water);
+  const spout = mesh(cylGeo(0.5, 0.7, 1.6, 16), M.marble);
+  spout.position.y = 1.3;
+  kas.add(spout);
+  for (let a = 0; a < 16; a++) {
+    const seat = mesh(boxGeo(0.45, 0.45, 0.45), M.stone);
+    seat.position.set(Math.cos(a / 16 * 6.283) * 5.4, 0.22, Math.sin(a / 16 * 6.283) * 5.4);
+    kas.add(seat);
+  }
+  scene.add(era(kas, 1193));
+  R.minimap.push({ type: 'circle', X: 138, Y: 160, r: 4.5, color: '#5d9cc0', from: 1193 });
+  landmark({ id: 'kas', name: 'Al-Kas Fountain', ar: 'الكأس', built: 'Ayyubid, 1193 CE', X: 138, Y: 160, r: 12, from: 1193, text: 'The ablution fountain between the Qibli Mosque and the platform, first built by the Ayyubid al-Adil and later remodelled with stone seats and taps.' });
+}
+
+let treeIdSeed = 1;
+function addTrees(M, scene, cypress, olives, groundFn, from = -Infinity, to = Infinity) {
+  const dummy = new THREE.Object3D();
+  if (cypress.length) {
+    const cone = new THREE.ConeGeometry(1.25, 9, 8);
+    cone.translate(0, 5.4, 0);
+    const im = new THREE.InstancedMesh(cone, M.cypress, cypress.length);
+    const tr = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.2, 0.25, 1.2, 6).translate(0, 0.6, 0), M.trunk, cypress.length);
+    cypress.forEach(([X, Y], i) => {
+      const w = toWorld(X, Y);
+      const s = 0.8 + ((i * 37) % 10) / 25;
+      dummy.position.set(w.x, groundFn(X, Y), w.z);
+      dummy.scale.set(s, s * 1.05, s);
+      dummy.updateMatrix();
+      im.setMatrixAt(i, dummy.matrix);
+      tr.setMatrixAt(i, dummy.matrix);
+      R.circles.push({ x: w.x, z: w.z, r: 0.5 });
+    });
+    im.castShadow = true;
+    im.receiveShadow = true;
+    scene.add(era(im, from, to), era(tr, from, to));
+  }
+  if (olives.length) {
+    const crown = new THREE.IcosahedronGeometry(2.6, 1);
+    crown.scale(1.2, 0.8, 1.2);
+    crown.translate(0, 3.6, 0);
+    const im = new THREE.InstancedMesh(crown, M.olive, olives.length);
+    const tr = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.25, 0.4, 2.6, 6).translate(0, 1.3, 0), M.trunk, olives.length);
+    const r = rng(treeIdSeed++ * 999);
+    olives.forEach(([X, Y, s = 1], i) => {
+      const w = toWorld(X, Y);
+      dummy.position.set(w.x, groundFn(X, Y), w.z);
+      dummy.rotation.y = r() * 6.28;
+      dummy.scale.set(s, s, s);
+      dummy.updateMatrix();
+      im.setMatrixAt(i, dummy.matrix);
+      tr.setMatrixAt(i, dummy.matrix);
+      R.circles.push({ x: w.x, z: w.z, r: 0.45 * s });
+    });
+    dummy.rotation.set(0, 0, 0);
+    im.castShadow = true;
+    im.receiveShadow = true;
+    scene.add(era(im, from, to), era(tr, from, to));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Domes, minarets and other monuments of the courtyard.
+
+function monuments(M, scene) {
+  const onPlat = (obj, X, Y) => { put(obj, X, Y, P); return obj; };
+  const ascension = pavilion(M, { n: 8, r: 4.2, h: 5.0, spring: 3.4, domeR: 2.6, domeH: 2.8, closed: [4] });
+  scene.add(era(onPlat(ascension, 113, 327), 1200));
+  landmark({ id: 'miraj', name: 'Dome of the Ascension', ar: 'قبة المعراج', built: 'Ayyubid, 1200–01 CE · 597 AH', X: 113, Y: 327, r: 8, from: 1200, h: P, text: 'Built by the Ayyubid governor Izz al-Din Uthman to commemorate the Prophet’s ﷺ ascension (al-Mi‘raj).' });
+  const prophet = pavilion(M, { n: 8, r: 2.6, h: 4.0, spring: 2.8, domeR: 1.9, domeH: 2.0, closed: [4] });
+  scene.add(era(onPlat(prophet, 129, 335), 1538));
+  landmark({ id: 'nabi', name: 'Dome of the Prophet', ar: 'قبة النبي', built: 'Ottoman, 1538; rebuilt 1620', X: 129, Y: 335, r: 6, from: 1538, h: P, text: 'An octagonal pavilion of eight marble columns marking where, by tradition, the Prophet ﷺ led the prophets in prayer on the Night Journey.' });
+  const arwah = pavilion(M, { n: 8, r: 2.4, h: 3.8, spring: 2.6, domeR: 1.8, domeH: 1.9 });
+  scene.add(era(onPlat(arwah, 104, 354), 1550));
+  landmark({ id: 'arwah', name: 'Dome of the Spirits', ar: 'قبة الأرواح', built: 'Ottoman, 16th century', X: 104, Y: 354, r: 5, from: 1550, h: P, text: 'A small open dome on the north-west of the platform.' });
+  const khidr = pavilion(M, { n: 6, r: 2.0, h: 3.5, spring: 2.4, domeR: 1.6, domeH: 1.7, closed: [3] });
+  scene.add(era(onPlat(khidr, 92, 350), 1550));
+  landmark({ id: 'khidr', name: 'Dome of al-Khidr', ar: 'قبة الخضر', built: 'Ottoman, 16th century', X: 92, Y: 350, r: 5, from: 1550, h: P, text: 'A hexagonal dome on six columns.' });
+  const yusuf = pavilion(M, { n: 4, r: 2.4, h: 3.8, spring: 2.6, domeR: 1.6, domeH: 1.6, closed: [0, 1] });
+  scene.add(era(onPlat(yusuf, 116, 228), 1191));
+  landmark({ id: 'yusuf', name: 'Dome of Yusuf', ar: 'قبة يوسف', built: 'Ayyubid, 1191 CE', X: 116, Y: 228, r: 5, from: 1191, h: P, text: 'Bears an inscription of Salah al-Din Yusuf ibn Ayyub, from whom it takes its name.' });
+
+  // Summer minbar of Burhan al-Din (Mamluk, 1388)
+  const sm = new THREE.Group();
+  const st = stairsGeo(1.2, 2.4, 0.3, 0.35);
+  const stm = mesh(st.geo, M.marble, { collide: true });
+  stm.rotation.y = Math.PI;
+  stm.position.z = st.length;
+  sm.add(stm);
+  const canopy = pavilion(M, { n: 4, r: 1.2, h: 2.6, spring: 1.8, domeR: 0.85, domeH: 0.9, drumH: 0.2 });
+  canopy.position.set(0, 2.4, -0.4);
+  sm.add(canopy);
+  scene.add(era(onPlat(sm, 152, 226), 1388));
+  landmark({ id: 'summer', name: 'Summer Minbar of Burhan al-Din', ar: 'منبر برهان الدين', built: 'Mamluk, 1388 CE', X: 152, Y: 226, r: 5, from: 1388, h: P, text: 'An outdoor marble pulpit used for sermons in the courtyard during the summer.' });
+
+  // Dome of Moses (Ayyubid, 1249)
+  const musa = cubeDome(M, { w: 9, d: 9, h: 7, domeR: 3.6, domeH: 3.6, door: 'N' });
+  put(musa, 50, 205);
+  scene.add(era(musa, 1249));
+  R.minimap.push({ type: 'poly', pts: rect(45.5, 200.5, 54.5, 209.5), color: '#c4b48f', from: 1249 });
+  landmark({ id: 'musa', name: 'Dome of Moses', ar: 'قبة موسى', built: 'Ayyubid, 1249 CE · 647 AH', X: 50, Y: 205, r: 9, from: 1249, text: 'A square domed prayer room built under the Ayyubid sultan al-Salih Ayyub.' });
+
+  // Madrasa al-Ashrafiyya and Sabil Qaitbay (Mamluk, 1482)
+  const ash = new THREE.Group();
+  put(ash, 14, 249);
+  const portal = mesh(wallGeo(22, 13, 1.2, { doors: [{ c: 11, w: 4, s: 6.5 }], windows: [{ c: 4, y: 7, w: 1.6, h: 2 }, { c: 18, y: 7, w: 1.6, h: 2 }] }), M.stoneWarm, { collide: true });
+  portal.rotation.y = Math.PI / 2;
+  portal.position.x = 6;
+  ash.add(portal);
+  for (let i = 0; i < 6; i++) {
+    const stripe = mesh(boxGeo(1.25, 0.45, 22.02), i % 2 ? M.stone : new THREE.MeshStandardMaterial({ color: 0x9a4a3a, roughness: 0.9 }));
+    stripe.position.set(6, 9 + i * 0.45, 0);
+    ash.add(stripe);
+  }
+  const body = mesh(boxGeo(10, 13, 22), M.stoneWarm);
+  body.position.set(0.4, 6.5, 0);
+  ash.add(body);
+  scene.add(era(ash, 1482));
+  R.minimap.push({ type: 'poly', pts: rect(9, 238, 20, 260), color: '#c4b48f', from: 1482 });
+  landmark({ id: 'ashrafiyya', name: 'Madrasa al-Ashrafiyya', ar: 'المدرسة الأشرفية', built: 'Mamluk, 1482 CE', X: 20, Y: 249, r: 12, from: 1482, text: 'Built by Sultan al-Ashraf Qaitbay; the Mamluk historian Mujir al-Din called it the third jewel of the Haram, after the Dome of the Rock and al-Aqsa.' });
+
+  const sabil = new THREE.Group();
+  put(sabil, 58, 251);
+  sabil.add(cubeDome(M, { w: 4.6, d: 4.6, h: 7.5, domeR: 2.0, domeH: 4.0, drumH: 1.5, door: 'E' }));
+  sabil.traverse((o) => { if (o.isMesh && o.material === M.leadDark) o.material = M.carved; });
+  scene.add(era(sabil, 1482));
+  landmark({ id: 'qaitbay', name: 'Sabil Qaitbay', ar: 'سبيل قايتباي', built: 'Mamluk, 1482 CE', X: 58, Y: 251, r: 7, from: 1482, text: 'A public drinking fountain crowned by the only carved-stone dome of its kind in Jerusalem.' });
+
+  // Islamic Museum (the Maghariba mosque and adjoining halls)
+  const mus = new THREE.Group();
+  const mw = mesh(wallGeo(96, 9, 1.2, { doors: [{ c: 30, w: 3, s: 4.4 }, { c: 70, w: 3, s: 4.4 }], windows: Array.from({ length: 12 }, (_, i) => ({ c: 6 + i * 8, y: 5, w: 1.4, h: 1.8 })) }), M.stoneWarm, { collide: true });
+  put(mw, 52, 20.6);
+  mus.add(mw);
+  const mroof = mesh(boxGeo(97, 0.6, 18), M.stone);
+  put(mroof, 52, 11.5, 9.3);
+  mus.add(mroof);
+  const mwing = mesh(boxGeo(13, 9, 18), M.stoneWarm, { collide: true });
+  put(mwing, 8, 29, 4.5);
+  mus.add(mwing);
+  scene.add(era(mus, 1193));
+  R.minimap.push({ type: 'poly', pts: [[2, 3], [100, 3], [100, 20], [15, 20], [15, 38], [2, 38]], color: '#b9aa88', from: 1193 });
+  landmark({ id: 'maghariba', name: 'Mosque of the Maghariba', ar: 'جامع المغاربة', built: 'Ayyubid, 1193 CE', X: 50, Y: 14, r: 22, from: 1193, to: 1923, text: 'A mosque for North African worshippers, part of the endowment of al-Afdal, son of Salah al-Din.' });
+  landmark({ id: 'museum', name: 'Islamic Museum', ar: 'المتحف الإسلامي', built: 'Founded 1923', X: 50, Y: 14, r: 22, from: 1923, text: 'Opened by the Supreme Muslim Council in 1923. It keeps the charred fragments of the Salah al-Din minbar, manuscripts and Qur’ans.' });
+
+  // minarets
+  const m1 = minaret(M, { h: 23, w: 5, upper: 'cyl', from: 1278 });
+  put(m1, 9, 45);
+  scene.add(m1);
+  landmark({ id: 'fakhariyya', name: 'Al-Fakhariyya Minaret', ar: 'مئذنة الفخرية', built: 'Mamluk, 1278 CE', X: 9, Y: 45, r: 8, from: 1278, text: 'The south-western minaret, named after the Fakhriyya khanqah; its upper drum and dome were rebuilt by the Ottomans.' });
+  const m2 = minaret(M, { h: 37, w: 5.5, upper: 'cyl', from: 1329 });
+  put(m2, 4, 212);
+  scene.add(m2);
+  landmark({ id: 'silsila', name: 'Bab al-Silsila Minaret', ar: 'مئذنة باب السلسلة', built: 'Mamluk, 1329 CE', X: 4, Y: 212, r: 8, from: 1329, text: 'Built by the governor Tankiz al-Nasiri above the western portico, beside the Gate of the Chain.' });
+  const m3 = minaret(M, { h: 38.5, w: 6.4, upper: 'oct', from: 1297 });
+  put(m3, 6, 476);
+  scene.add(m3);
+  landmark({ id: 'ghawanima', name: 'Al-Ghawanima Minaret', ar: 'مئذنة الغوانمة', built: 'Mamluk, 1297 CE', X: 6, Y: 476, r: 9, from: 1297, text: 'The tallest minaret of al-Aqsa, about 38.5 m, at the north-west corner, built in the reign of Sultan Lajin.' });
+  const m4 = minaret(M, { h: 28, w: 5.5, upper: 'cyl', from: 1367 });
+  put(m4, 262, 466);
+  scene.add(m4);
+  landmark({ id: 'asbat', name: 'Bab al-Asbat Minaret', ar: 'مئذنة باب الأسباط', built: 'Mamluk, 1367 CE', X: 262, Y: 466, r: 8, from: 1367, text: 'Built by Sayf al-Din Qutlubugha; its cylindrical upper storey is an Ottoman rebuilding.' });
+  for (const [X, Y, from] of [[9, 45, 1278], [4, 212, 1329], [6, 476, 1297], [262, 466, 1367]]) {
+    R.minimap.push({ type: 'minaret', X, Y, color: '#efe2c4', from });
+  }
+
+  // Bab al-Rahma (the Golden Gate) and its prayer hall
+  const br = new THREE.Group();
+  put(br, 282.5, 330);
+  br.add(cubeDome(M, { w: 15, d: 22, h: 8, domeR: 3.4, domeH: 3.2, drumH: 0.4, door: 'W', domes: [[0, -5.5], [0, 5.5]] }));
+  scene.add(era(br, 691));
+  R.minimap.push({ type: 'poly', pts: rect(275, 319, 290, 341), color: '#c4b48f' });
+  landmark({ id: 'rahma', name: 'Bab al-Rahma', ar: 'باب الرحمة', built: 'Umayyad gate; prayer hall reopened 2019', X: 280, Y: 330, r: 14, from: 691, text: 'The double Gate of Mercy in the eastern wall, sealed since Ottoman times. Imam al-Ghazali is said to have taught in its hall; worshippers reopened it for prayer in February 2019.' });
+}
+
+// ---------------------------------------------------------------------------
+// Al-Musalla al-Marwani: the vaulted halls under the south-east corner.
+
+function marwani(M, scene) {
+  const g = new THREE.Group();
+  const y = -10, H = 9;
+  const X0 = 200, X1 = 272, Y0 = 4, Y1 = 62;
+  const fl = mesh(floorGeo([[X0, Y0], [X1, Y0], [X1, Y1], [224, Y1], [224, 66], [214, 66], [214, Y1], [X0, Y1]]), M.carpet, { cast: false, walk: true });
+  fl.position.y = y;
+  g.add(fl);
+  const cl = mesh(floorGeo(rect(X0, Y0, X1, Y1)), new THREE.MeshStandardMaterial({ map: M.stone.map, side: THREE.DoubleSide, roughness: 1 }), { cast: false });
+  cl.position.y = -1;
+  g.add(cl);
+  const wall = (len, X, Y, rot, doors = []) => {
+    const m = mesh(wallGeo(len, H, 1.5, { doors }), M.wallOld, { collide: true });
+    put(m, X, Y, y, rot);
+    g.add(m);
+  };
+  wall(X1 - X0 + 3, (X0 + X1) / 2, Y0 - 0.75, 0);
+  wall(X1 - X0 + 3, (X0 + X1) / 2, Y1 + 0.75, 0, [{ c: 219 - X0 + 1.5, w: 10, s: 7.4, flat: true }]);
+  wall(Y1 - Y0, X0 - 0.75, (Y0 + Y1) / 2, Math.PI / 2);
+  wall(Y1 - Y0, X1 + 0.75, (Y0 + Y1) / 2, Math.PI / 2);
+  for (let X = X0 + 6; X < X1 - 2; X += 6) {
+    const a = mesh(arcadeGeo(Y1 - Y0, H, 9, 5.6, 1.4, 1.4), M.wallOld, { collide: true });
+    put(a, X, (Y0 + Y1) / 2, y, Math.PI / 2);
+    g.add(a);
+  }
+  for (let X = X0 + 3; X < X1; X += 12) for (let Y = Y0 + 6; Y < Y1; Y += 12) {
+    const l = mesh(new THREE.SphereGeometry(0.35, 10, 8), M.lamp, { cast: false });
+    put(l, X, Y, y + 6.5);
+    g.add(l);
+  }
+  scene.add(g);
+  const lt = new THREE.PointLight(0xffd59a, 900, 90, 1.6);
+  put(lt, 236, 33, y + 7);
+  scene.add(era(lt, 1996));
+  const lt2 = new THREE.PointLight(0xffd59a, 500, 60, 1.6);
+  put(lt2, 210, 50, y + 7);
+  scene.add(era(lt2, 1996));
+
+  // the stairway opened in 1996-2000
+  const sg = new THREE.Group();
+  put(sg, 219, 86, y);
+  const st = stairsGeo(10, 10, 0.25, 0.5);
+  sg.add(mesh(st.geo, M.stone, { walk: true }));
+  for (const sx of [-1, 1]) {
+    const sw = mesh(boxGeo(1, 11.2, 22), M.wallOld, { collide: true });
+    sw.position.set(sx * 5.5, 5.6, 11);
+    sg.add(sw);
+  }
+  scene.add(era(sg, 1996));
+  R.minimap.push({ type: 'poly', pts: rect(X0, Y0, X1, Y1), color: '#7f6a52', dash: true });
+  R.minimap.push({ type: 'poly', pts: rect(214, 64, 224, 86), color: '#e9dcc0', from: 1996 });
+  landmark({
+    id: 'marwani', name: 'Al-Musalla al-Marwani', ar: 'المصلى المرواني', built: 'Umayyad vaults; opened for prayer 1996',
+    X: 236, Y: 33, r: 40, from: 1996, h: -10,
+    text: 'Vaulted halls under the south-east corner that carry the courtyard above. The Crusaders used them as stables. Restored by the Waqf and the Islamic Movement and opened as a prayer hall for 10,000 worshippers in December 1996.',
+  });
+  landmark({
+    id: 'marwani-closed', name: 'Vaults beneath the south-east (sealed)', ar: 'الأقبية الجنوبية الشرقية', built: 'Umayyad',
+    X: 219, Y: 75, r: 14, to: 1996,
+    text: 'The vaulted substructures beneath this corner of the courtyard are closed. They will be opened as al-Musalla al-Marwani in 1996.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Outside the walls: terrain, the Old City, the Mughrabi Quarter and the
+// Mount of Olives.
+
+function surroundings(M, scene) {
+  const size = 2400, seg = 300;
+  const tg = new THREE.PlaneGeometry(size, size, seg, seg);
+  tg.rotateX(-Math.PI / 2);
+  const pos = tg.attributes.position;
+  const uv = tg.attributes.uv;
+  const col = new Float32Array(pos.count * 3);
+  const cA = new THREE.Color(0xc9b896), cB = new THREE.Color(0x8d8a5a), tmp = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), z = pos.getZ(i);
+    const X = x + 140, Y = -z + 245;
+    const h = terrainH(X, Y);
+    pos.setY(i, h);
+    uv.setXY(i, x, z);
+    const slope = Math.min(1, Math.max(0, (h + 10) / 120)) * 0.8 + ((Math.sin(X * 0.05) + Math.cos(Y * 0.07)) * 0.1);
+    tmp.copy(cA).lerp(cB, Math.max(0, Math.min(1, slope)));
+    col[i * 3] = tmp.r; col[i * 3 + 1] = tmp.g; col[i * 3 + 2] = tmp.b;
+  }
+  tg.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  tg.computeVertexNormals();
+  const tm = new THREE.MeshStandardMaterial({ map: M.earth.map, vertexColors: true, roughness: 1 });
+  const terrain = new THREE.Mesh(tg, tm);
+  terrain.receiveShadow = true;
+  terrain.userData.terrain = true;
+  scene.add(terrain);
+
+  // Western (al-Buraq) plaza since 1967
+  const plaza = mesh(floorGeo(rect(-116, 20, -7, 140)), M.paving.clone(), { cast: false });
+  plaza.material.polygonOffset = true;
+  plaza.material.polygonOffsetFactor = -2;
+  plaza.material.polygonOffsetUnits = -2;
+  plaza.position.y = -11.85;
+  scene.add(era(plaza, 1967));
+
+  // Mughrabi gate approach: earthen ramp, then a wooden bridge since 2005
+  const gateY = 80;
+  for (const [m, a, b] of [[M.wallOld, -Infinity, 2005], [M.wood, 2005, Infinity]]) {
+    const rg = new THREE.Group();
+    put(rg, westX(gateY) - 3, gateY, 0, -Math.PI / 2);
+    const len = Math.hypot(60, 12), ang = Math.atan2(12, 60);
+    const ramp = mesh(boxGeo(4, 0.6, len), m, { walk: true });
+    ramp.rotation.x = ang;
+    ramp.position.set(0, -6 - 0.3, 30);
+    rg.add(ramp);
+    for (const sx of [-1, 1]) {
+      const rail = mesh(boxGeo(0.25, 1.2, len), m, { collide: true });
+      rail.rotation.x = ang;
+      rail.position.set(sx * 2.1, -6 + 0.6, 30);
+      rg.add(rail);
+    }
+    scene.add(era(rg, a, b));
+  }
+
+  // Old City houses
+  const r = rng(99);
+  const houses = [], mughrabi = [];
+  const gateYs = [80, 205, 245, 275, 305, 340, 470];
+  const gateXs = [120, 190, 272];
+  const cell = 15;
+  const streetFree = (X, Y) => gateYs.some((gy) => Math.abs(Y - gy) < 6 && X < 0) || gateXs.some((gx) => Math.abs(X - gx) < 6 && Y > 470);
+  for (let X = -640; X < 330; X += cell) {
+    for (let Y = -70; Y < 800; Y += cell) {
+      const hx = X + r() * 4, hy = Y + r() * 4;
+      const w = 7 + r() * 7, d = 7 + r() * 7;
+      const cx = hx + w / 2, cy = hy + d / 2;
+      const wy = Math.min(490, Math.max(0, cy));
+      if (cy < 505 && cx + w / 2 > westX(wy) - 5 && cx - w / 2 < eastX(Math.min(470, wy)) + 5 && cy - d / 2 < northY(Math.min(295, Math.max(-15, cx))) + 5) continue;
+      if (cx > 290 && cy < 480) continue;
+      if (cy < -10 && cx > -120) continue;
+      if (streetFree(cx, cy)) continue;
+      if (r() < 0.12) continue;
+      const inPlaza = cx > -122 && cx < -2 && cy > 12 && cy < 148;
+      const h = 6 + r() * 7;
+      const base = inPlaza ? -12 : terrainH(cx, cy);
+      if (inPlaza) {
+        if (Math.abs(cy - gateY) < 5) continue;
+        mughrabi.push({ cx, cy, w, d, h: h * 0.8, base });
+      } else houses.push({ cx, cy, w, d, h, base });
+    }
+  }
+  // inner city wall loop (Ottoman walls of Suleiman, 1537-41)
+  const cityWall = [[0, -2], [-650, -80], [-660, 805], [335, 805], [295, 470]];
+  for (let i = 0; i < cityWall.length - 1; i++) {
+    const [a, b] = [cityWall[i], cityWall[i + 1]];
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const wm = mesh(boxGeo(L, 40, 3), M.wallOld, { collide: true });
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    put(wm, mx, my, terrainH(mx, my) - 28, Math.atan2(b[1] - a[1], b[0] - a[0]));
+    scene.add(wm);
+  }
+  const makeHouses = (list, from, to) => {
+    const box = new THREE.BoxGeometry(1, 1, 1);
+    box.translate(0, 0.5, 0);
+    const hm = new THREE.InstancedMesh(box, M.houseInst, list.length);
+    const domes = list.filter((_, i) => i % 3 === 0);
+    const dm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), M.houseInst, domes.length);
+    const dummy = new THREE.Object3D();
+    const c = new THREE.Color();
+    let di = 0;
+    list.forEach((hs, i) => {
+      const w = toWorld(hs.cx, hs.cy);
+      dummy.position.set(w.x, hs.base - 2, w.z);
+      dummy.scale.set(hs.w, hs.h + 2, hs.d);
+      dummy.updateMatrix();
+      hm.setMatrixAt(i, dummy.matrix);
+      c.setHSL(0.11, 0.25 + (i % 7) * 0.02, 0.72 + ((i * 13) % 10) / 100);
+      hm.setColorAt(i, c);
+      R.boxes.push({ x0: w.x - hs.w / 2, x1: w.x + hs.w / 2, z0: w.z - hs.d / 2, z1: w.z + hs.d / 2, top: hs.base + hs.h, from, to });
+      if (i % 3 === 0) {
+        const dr = Math.min(hs.w, hs.d) * 0.3;
+        dummy.position.set(w.x, hs.base + hs.h, w.z);
+        dummy.scale.set(dr, dr * 0.9, dr);
+        dummy.updateMatrix();
+        dm.setMatrixAt(di, dummy.matrix);
+        dm.setColorAt(di, c);
+        di++;
+      }
+    });
+    hm.castShadow = hm.receiveShadow = true;
+    dm.castShadow = dm.receiveShadow = true;
+    scene.add(era(hm, from, to), era(dm, from, to));
+  };
+  M.houseInst = new THREE.MeshStandardMaterial({ map: M.house.map.clone(), roughness: 0.95 });
+  M.houseInst.map.repeat.set(1, 1);
+  M.houseInst.map.needsUpdate = true;
+  makeHouses(houses, -Infinity, Infinity);
+  makeHouses(mughrabi, -Infinity, 1967);
+  R.minimap.push({ type: 'poly', pts: rect(-120, 14, -6, 146), color: '#9c8f74', to: 1967, fill: true, label: 'Mughrabi Qr.' });
+  R.minimap.push({ type: 'poly', pts: rect(-118, 18, -6, 142), color: '#cfc6b2', from: 1967, fill: true, label: 'Plaza' });
+  landmark({
+    id: 'mughrabi', name: 'Mughrabi Quarter', ar: 'حارة المغاربة', built: 'Endowed 1193 CE by al-Afdal',
+    X: -60, Y: 80, r: 60, to: 1967, h: -12,
+    text: 'The quarter of North African Muslims, endowed by al-Afdal Ali, son of Salah al-Din, beside the western wall of al-Aqsa. Home to about 135 houses, two mosques and the zawiya of Abu Madyan.',
+  });
+  landmark({
+    id: 'plaza', name: 'Site of the Mughrabi Quarter', ar: 'موقع حارة المغاربة', built: 'Demolished 10–11 June 1967',
+    X: -60, Y: 80, r: 60, from: 1967, h: -12,
+    text: 'Days after the occupation of East Jerusalem in June 1967, the 770-year-old quarter was demolished and its residents expelled to clear a plaza before al-Buraq Wall.',
+  });
+
+  // Mount of Olives: scattered olive trees and houses on the slope
+  const mo = [];
+  for (let i = 0; i < 700; i++) {
+    const X = 380 + r() * 750, Y = -400 + r() * 1300;
+    mo.push([X, Y, 0.8 + r() * 0.6]);
+  }
+  addTrees(M, scene, [], mo, (X, Y) => terrainH(X, Y));
+  landmark({ id: 'olives', name: 'Mount of Olives', ar: 'جبل الزيتون', built: 'Jabal al-Tur', X: 900, Y: 245, r: 200, text: 'The ridge east of the Old City across the Kidron valley, with the classic view west over al-Aqsa.' });
+}
+
+function buildWorld(scene, T) {
+  const M = materials(T);
+  courtyard(M, scene);
+  compoundWalls(M, scene);
+  domeOfTheRock(M, scene);
+  domeOfTheChain(M, scene);
+  qibliMosques(M, scene);
+  monuments(M, scene);
+  marwani(M, scene);
+  surroundings(M, scene);
+  return M;
+}
+
+
+// ---- main.js ----
+
+const $ = (id) => document.getElementById(id);
+const canvas = $('scene');
+const coarse = matchMedia('(pointer: coarse)').matches;
+
+// ---------------------------------------------------------------- renderer
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !coarse, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, coarse ? 1.5 : 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.82;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xd9dcd6, 400, 2800);
+const camera = new THREE.PerspectiveCamera(68, 1, 0.1, 5000);
+camera.rotation.order = 'YXZ';
+
+const sunDir = new THREE.Vector3(-0.55, 0.72, 0.42).normalize();
+const sky = new THREE.Mesh(
+  new THREE.SphereGeometry(4000, 32, 16),
+  new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false, fog: false,
+    uniforms: { sun: { value: sunDir } },
+    vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: `varying vec3 vD; uniform vec3 sun;
+      void main(){
+        float h = clamp(vD.y, -0.2, 1.0);
+        vec3 horizon = vec3(0.93, 0.88, 0.80);
+        vec3 zenith = vec3(0.30, 0.52, 0.80);
+        vec3 c = mix(horizon, zenith, pow(max(h, 0.0), 0.55));
+        float s = max(dot(normalize(vD), sun), 0.0);
+        c += vec3(1.0, 0.85, 0.6) * pow(s, 64.0) * 0.8 + vec3(1.0, 0.8, 0.6) * pow(s, 6.0) * 0.12;
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  }),
+);
+sky.renderOrder = -1;
+scene.add(sky);
+
+// image-based lighting from the same sky, so gilded and lead domes read
+// as metal
+{
+  const envScene = new THREE.Scene();
+  envScene.add(new THREE.Mesh(sky.geometry, sky.material));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(3000, 16), new THREE.MeshBasicMaterial({ color: 0x9a8a6c }));
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -20;
+  envScene.add(ground);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(envScene, 0.03, 0.1, 10000).texture;
+  pmrem.dispose();
+}
+const hemi = new THREE.HemisphereLight(0xd6e6ff, 0xb39b78, 0.55);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff0dc, 2.6);
+sun.castShadow = true;
+sun.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048);
+const SH = 95;
+Object.assign(sun.shadow.camera, { left: -SH, right: SH, top: SH, bottom: -SH, near: 1, far: 600 });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.5;
+scene.add(sun, sun.target);
+
+// ---------------------------------------------------------------- state
+const EYE = 1.65;
+const player = { pos: new THREE.Vector3(), vy: 0, yaw: 0, pitch: 0, fly: true, onGround: false };
+let year = 2026;
+let walkables = [], solids = [], activeBoxes = [];
+
+function placeAt(X, Y, y, yaw, pitch = 0, fly = player.fly) {
+  const w = toWorld(X, Y);
+  player.pos.set(w.x, y, w.z);
+  player.yaw = yaw;
+  player.pitch = pitch;
+  player.vy = 0;
+  setFly(fly);
+}
+
+function lookAtSite(X, Y, y, tX, tY, ty) {
+  const a = toWorld(X, Y), b = toWorld(tX, tY);
+  const dx = b.x - a.x, dz = b.z - a.z, dy = ty - (y + EYE);
+  return { yaw: Math.atan2(-dx, -dz), pitch: Math.atan2(dy, Math.hypot(dx, dz)) };
+}
+
+// ---------------------------------------------------------------- collision
+const rayDown = new THREE.Raycaster();
+const rayH = new THREE.Raycaster();
+const v3 = new THREE.Vector3(), dirV = new THREE.Vector3(), nrm = new THREE.Vector3();
+const RADIUS = 0.35;
+
+function near(list, x, z, pad) {
+  const out = [];
+  for (const o of list) {
+    const s = o.userData.bs;
+    const dx = s.center.x - x, dz = s.center.z - z;
+    const rr = s.radius + pad;
+    if (dx * dx + dz * dz < rr * rr) out.push(o);
+  }
+  return out;
+}
+
+function groundAt(x, z, feetY, list) {
+  rayDown.ray.origin.set(x, feetY + 0.9, z);
+  rayDown.ray.direction.set(0, -1, 0);
+  rayDown.far = 400;
+  const hits = rayDown.intersectObjects(list || near(walkables, x, z, 2), false);
+  let g = hits.length ? hits[0].point.y : -Infinity;
+  const s = toSite(x, z);
+  if (!insideCompound(s.X, s.Y)) g = Math.max(g, terrainH(s.X, s.Y));
+  return Math.max(g, -60);
+}
+
+function blocked(origin, m, list) {
+  const len = Math.hypot(m.x, m.z);
+  if (len < 1e-6) return null;
+  dirV.set(m.x / len, 0, m.z / len);
+  let best = null;
+  for (const h of [0.45, 0.95, 1.6]) {
+    rayH.ray.origin.set(origin.x, origin.y + h, origin.z);
+    rayH.ray.direction.copy(dirV);
+    rayH.far = len + RADIUS;
+    const hit = rayH.intersectObjects(list, false)[0];
+    if (hit && (!best || hit.distance < best.distance)) best = hit;
+  }
+  return best;
+}
+
+function slideMove(m) {
+  const list = near(solids, player.pos.x, player.pos.z, 4);
+  const hit = blocked(player.pos, m, list);
+  if (!hit) return m;
+  if (hit.face) {
+    nrm.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);
+    nrm.y = 0;
+    if (nrm.lengthSq() < 1e-6) return m.set(0, 0, 0);
+    nrm.normalize();
+    if (nrm.dot(dirV) > 0) nrm.negate();
+    const d = m.x * nrm.x + m.z * nrm.z;
+    m.x -= nrm.x * d;
+    m.z -= nrm.z * d;
+    if (blocked(player.pos, m, list)) m.set(0, 0, 0);
+    return m;
+  }
+  return m.set(0, 0, 0);
+}
+
+function pushOut() {
+  const p = player.pos;
+  for (const c of R.circles) {
+    const dx = p.x - c.x, dz = p.z - c.z;
+    const rr = c.r + RADIUS;
+    const d2 = dx * dx + dz * dz;
+    if (d2 < rr * rr && d2 > 1e-8) {
+      const d = Math.sqrt(d2);
+      p.x = c.x + (dx / d) * rr;
+      p.z = c.z + (dz / d) * rr;
+    }
+  }
+  for (const b of activeBoxes) {
+    if (p.y > b.top - 0.2) continue;
+    if (p.x > b.x0 - RADIUS && p.x < b.x1 + RADIUS && p.z > b.z0 - RADIUS && p.z < b.z1 + RADIUS) {
+      const pen = [p.x - (b.x0 - RADIUS), b.x1 + RADIUS - p.x, p.z - (b.z0 - RADIUS), b.z1 + RADIUS - p.z];
+      const i = pen.indexOf(Math.min(...pen));
+      if (i === 0) p.x = b.x0 - RADIUS;
+      else if (i === 1) p.x = b.x1 + RADIUS;
+      else if (i === 2) p.z = b.z0 - RADIUS;
+      else p.z = b.z1 + RADIUS;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- input
+const keys = new Set();
+const joy = { x: 0, y: 0 };
+let flyUp = 0;
+addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+  const k = e.key.toLowerCase();
+  keys.add(k);
+  if (k === 'f') setFly(!player.fly);
+  if (k === 'm') toggleMap();
+  if (k === 'h' || k === '?') toggleHelp();
+  if (k === '[' || k === ',') stepEra(-1);
+  if (k === ']' || k === '.') stepEra(1);
+  if ([' ', 'arrowup', 'arrowdown'].includes(k) && e.target === document.body) e.preventDefault();
+});
+addEventListener('keyup', (e) => keys.delete(e.key.toLowerCase()));
+addEventListener('blur', () => keys.clear());
+
+let dragging = null;
+canvas.addEventListener('click', () => {
+  if (coarse || document.pointerLockElement) return;
+  if (dragMoved) return;
+  try {
+    const p = canvas.requestPointerLock();
+    if (p && p.catch) p.catch(() => {});
+  } catch (_) { /* pointer lock unavailable: drag to look instead */ }
+});
+let dragMoved = false;
+canvas.addEventListener('mousedown', (e) => { dragging = { x: e.clientX, y: e.clientY }; dragMoved = false; });
+addEventListener('mouseup', () => { dragging = null; setTimeout(() => { dragMoved = false; }, 0); });
+addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement === canvas) {
+    look(e.movementX, e.movementY, 0.0022);
+  } else if (dragging) {
+    const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+    dragging = { x: e.clientX, y: e.clientY };
+    look(dx, dy, 0.004);
+  }
+});
+document.addEventListener('pointerlockchange', () => {
+  document.body.classList.toggle('locked', document.pointerLockElement === canvas);
+});
+
+function look(dx, dy, s) {
+  player.yaw -= dx * s;
+  player.pitch = Math.max(-1.45, Math.min(1.45, player.pitch - dy * s));
+}
+
+// touch: joystick on the left, drag anywhere else to look
+const joyEl = $('joy'), knob = $('knob');
+let joyId = null, lookId = null, lookLast = null;
+joyEl.addEventListener('touchstart', (e) => { joyId = e.changedTouches[0].identifier; moveJoy(e.changedTouches[0]); e.preventDefault(); }, { passive: false });
+joyEl.addEventListener('touchmove', (e) => {
+  for (const t of e.changedTouches) if (t.identifier === joyId) moveJoy(t);
+  e.preventDefault();
+}, { passive: false });
+const endJoy = (e) => {
+  for (const t of e.changedTouches) if (t.identifier === joyId) { joyId = null; joy.x = joy.y = 0; knob.style.transform = ''; }
+};
+joyEl.addEventListener('touchend', endJoy);
+joyEl.addEventListener('touchcancel', endJoy);
+function moveJoy(t) {
+  const r = joyEl.getBoundingClientRect();
+  let dx = (t.clientX - (r.left + r.width / 2)) / (r.width / 2);
+  let dy = (t.clientY - (r.top + r.height / 2)) / (r.height / 2);
+  const l = Math.hypot(dx, dy);
+  if (l > 1) { dx /= l; dy /= l; }
+  joy.x = dx;
+  joy.y = -dy;
+  knob.style.transform = `translate(${dx * 34}px, ${dy * 34}px)`;
+}
+canvas.addEventListener('touchstart', (e) => {
+  const t = e.changedTouches[0];
+  if (lookId === null) { lookId = t.identifier; lookLast = { x: t.clientX, y: t.clientY }; }
+}, { passive: true });
+canvas.addEventListener('touchmove', (e) => {
+  for (const t of e.changedTouches) if (t.identifier === lookId) {
+    look(t.clientX - lookLast.x, t.clientY - lookLast.y, 0.005);
+    lookLast = { x: t.clientX, y: t.clientY };
+  }
+  e.preventDefault();
+}, { passive: false });
+canvas.addEventListener('touchend', (e) => { for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null; });
+for (const [id, v] of [['upBtn', 1], ['downBtn', -1]]) {
+  const b = $(id);
+  const on = (e) => { flyUp = v; e.preventDefault(); };
+  const off = () => { flyUp = 0; };
+  b.addEventListener('touchstart', on, { passive: false });
+  b.addEventListener('mousedown', on);
+  b.addEventListener('touchend', off);
+  b.addEventListener('mouseup', off);
+  b.addEventListener('mouseleave', off);
+}
+$('jumpBtn').addEventListener('touchstart', (e) => { if (player.onGround) player.vy = 5.5; e.preventDefault(); }, { passive: false });
+
+function setFly(f) {
+  player.fly = f;
+  if (!f) {
+    player.vy = 0;
+    const g = groundAt(player.pos.x, player.pos.z, player.pos.y, walkables);
+    if (player.pos.y < g) player.pos.y = g;
+  }
+  document.body.classList.toggle('fly', f);
+  $('modeBtn').textContent = f ? 'Flying' : 'Walking';
+  $('modeBtn').setAttribute('aria-pressed', String(f));
+}
+$('modeBtn').addEventListener('click', () => setFly(!player.fly));
+
+// ---------------------------------------------------------------- update
+const mv = new THREE.Vector3();
+function update(dt) {
+  const k = (a, b) => (keys.has(a) || (b && keys.has(b)) ? 1 : 0);
+  let f = k('w', 'arrowup') - k('s', 'arrowdown') + joy.y;
+  let s = k('d', 'arrowright') - k('a', 'arrowleft') + joy.x;
+  const l = Math.hypot(f, s);
+  if (l > 1) { f /= l; s /= l; }
+  const run = keys.has('shift');
+  const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+  if (player.fly) {
+    const sp = run ? 70 : 22;
+    const cp = Math.cos(player.pitch), spch = Math.sin(player.pitch);
+    mv.set((-sy * cp) * f + cy * s, spch * f, (-cy * cp) * f - sy * s);
+    mv.y += k(' ', 'e') - k('c', 'q') + flyUp;
+    player.pos.addScaledVector(mv, sp * dt);
+    const st = toSite(player.pos.x, player.pos.z);
+    if (!insideCompound(st.X, st.Y)) player.pos.y = Math.max(player.pos.y, terrainH(st.X, st.Y) + 0.5);
+    player.pos.y = Math.min(player.pos.y, 900);
+    const lim = 1150;
+    player.pos.x = Math.max(-lim, Math.min(lim, player.pos.x));
+    player.pos.z = Math.max(-lim, Math.min(lim, player.pos.z));
+  } else {
+    const sp = run ? 9 : 4.2;
+    mv.set(-sy * f + cy * s, 0, -cy * f - sy * s).multiplyScalar(sp * dt);
+    slideMove(mv);
+    player.pos.x += mv.x;
+    player.pos.z += mv.z;
+    pushOut();
+    const list = near(walkables, player.pos.x, player.pos.z, 2);
+    if ((keys.has(' ')) && player.onGround) player.vy = 5.5;
+    player.vy -= 20 * dt;
+    player.pos.y += player.vy * dt;
+    const g = groundAt(player.pos.x, player.pos.z, player.pos.y, list);
+    if (player.pos.y <= g) {
+      player.pos.y = g;
+      player.vy = 0;
+      player.onGround = true;
+    } else if (player.onGround && player.vy <= 0 && player.pos.y - g < 0.6) {
+      player.pos.y = g;
+      player.vy = 0;
+    } else {
+      player.onGround = false;
+    }
+  }
+  camera.position.set(player.pos.x, player.pos.y + EYE, player.pos.z);
+  camera.rotation.set(player.pitch, player.yaw, 0);
+  sky.position.copy(camera.position);
+  // keep the shadow frustum around the viewer
+  const c = camera.position;
+  const ahead = player.fly ? 0 : 25;
+  sun.target.position.set(Math.round(c.x - sy * ahead), 0, Math.round(c.z - cy * ahead));
+  sun.position.copy(sun.target.position).addScaledVector(sunDir, 300);
+}
+
+// ---------------------------------------------------------------- eras
+function setYear(y) {
+  year = y;
+  for (const o of R.eraObjs) o.visible = inEra(o.userData, y);
+  walkables = [];
+  solids = [];
+  scene.traverseVisible((o) => {
+    if (!o.isMesh || o.isInstancedMesh) return;
+    if (o.userData.walk) walkables.push(o);
+    if (o.userData.collide) solids.push(o);
+  });
+  activeBoxes = R.boxes.filter((b) => inEra(b, y));
+  renderEra();
+}
+
+let shownEra = null;
+function renderEra() {
+  const e = eraFor(year);
+  $('yearNum').textContent = year;
+  $('yearAh').textContent = `≈ ${hijri(year)} AH`;
+  $('slider').value = year;
+  $('slider').setAttribute('aria-valuetext', `${year} CE, ${e.title}`);
+  document.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', Number(c.dataset.year) === e.year));
+  if (shownEra === e) return;
+  shownEra = e;
+  $('eraDyn').textContent = e.dynasty;
+  $('infoToggle').textContent = `This era · ${e.dynasty}`;
+  $('eraTitle').textContent = e.title;
+  $('eraText').textContent = e.text;
+  const i = ERAS.indexOf(e);
+  const next = ERAS[i + 1] ? ERAS[i + 1].year : Infinity;
+  const added = R.landmarks.filter((l) => l.from >= e.year && l.from < next && !l.id.startsWith('gate'));
+  const ul = $('eraNew');
+  ul.innerHTML = '';
+  for (const l of added) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = `<span>${l.name}</span><span class="ar" lang="ar">${l.ar}</span>`;
+    b.addEventListener('click', () => goToLandmark(l));
+    li.append(b);
+    ul.append(li);
+  }
+  $('eraNewWrap').hidden = added.length === 0;
+  const active = document.querySelector('.chip.on');
+  if (active) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+}
+
+function stepEra(d) {
+  const e = eraFor(year);
+  const i = Math.max(0, Math.min(ERAS.length - 1, ERAS.indexOf(e) + d));
+  setYear(ERAS[i].year);
+}
+
+function goToLandmark(l) {
+  const offset = Math.max(8, Math.min(30, l.r * 0.9));
+  const X = l.X, Y = l.Y - offset;
+  const w = toWorld(X, Y);
+  const y = groundAt(w.x, w.z, l.h + 40, walkables);
+  const la = lookAtSite(X, Y, y, l.X, l.Y, l.h + 4);
+  placeAt(X, Y, y, la.yaw, la.pitch, false);
+}
+
+// ---------------------------------------------------------------- UI build
+function buildUI() {
+  const slider = $('slider');
+  slider.min = 638;
+  slider.max = 2026;
+  let pending = null;
+  slider.addEventListener('input', () => {
+    pending = Number(slider.value);
+    requestAnimationFrame(() => { if (pending !== null) { setYear(pending); pending = null; } });
+  });
+  const ticks = $('ticks');
+  const chips = $('chips');
+  for (const e of ERAS) {
+    const t = document.createElement('span');
+    t.className = 'tick';
+    t.style.left = `${((e.year - 638) / (2026 - 638)) * 100}%`;
+    ticks.append(t);
+    const c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip';
+    c.dataset.year = e.year;
+    c.innerHTML = `<b>${e.year}</b><span>${e.label}</span>`;
+    c.addEventListener('click', () => setYear(e.year));
+    chips.append(c);
+  }
+  $('prevEra').addEventListener('click', () => stepEra(-1));
+  $('nextEra').addEventListener('click', () => stepEra(1));
+  let playT = null;
+  $('playBtn').addEventListener('click', () => {
+    if (playT) {
+      clearInterval(playT);
+      playT = null;
+      $('playBtn').textContent = 'Play history';
+      return;
+    }
+    if (eraFor(year) === ERAS[ERAS.length - 1]) setYear(ERAS[0].year);
+    $('playBtn').textContent = 'Stop';
+    playT = setInterval(() => {
+      if (eraFor(year) === ERAS[ERAS.length - 1]) { $('playBtn').click(); return; }
+      stepEra(1);
+    }, 5000);
+  });
+
+  const sel = $('goto');
+  const spots = [
+    { name: 'Overview from the air', fn: () => { const la = lookAtSite(-80, -150, 140, 138, 280, 10); placeAt(-80, -150, 140, la.yaw, la.pitch, true); } },
+    { name: 'Dome of the Rock · south porch', fn: () => placeAt(138, 258, PLATFORM_H, 0, 0.12, false) },
+    { name: 'Inside the Dome of the Rock', fn: () => placeAt(138, 272, PLATFORM_H, 0, 0.15, false) },
+    { name: 'Inside al-Qibli Mosque', fn: () => placeAt(138, 74, 0, Math.PI, 0.05, false) },
+    { name: 'Al-Kas fountain', fn: () => placeAt(138, 140, 0, 0, 0.1, false) },
+    { name: 'Dome of the Chain', fn: () => placeAt(179, 278, PLATFORM_H, 0, 0.1, false) },
+    { name: 'Al-Musalla al-Marwani (from 1996)', fn: () => { if (year < 1996) setYear(1996); placeAt(219, 58, -10, Math.PI, 0, false); } },
+    { name: 'Bab al-Rahma', fn: () => placeAt(255, 330, 0, -Math.PI / 2, 0.08, false) },
+    { name: 'Western riwaq', fn: () => placeAt(4, 300, 0, 0, 0, false) },
+    { name: 'Al-Ghawanima minaret', fn: () => placeAt(30, 455, 0, Math.PI / 4, 0.35, false) },
+    { name: 'Al-Buraq Wall (outside)', fn: () => placeAt(-55, 100, -12, -Math.PI / 2, 0.15, false) },
+    { name: 'Mount of Olives view', fn: () => { const la = lookAtSite(880, 250, 70, 138, 292, 20); placeAt(880, 250, 70, la.yaw, la.pitch, true); } },
+  ];
+  spots.forEach((s, i) => {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = s.name;
+    sel.append(o);
+  });
+  sel.addEventListener('change', () => {
+    const s = spots[Number(sel.value)];
+    if (s) s.fn();
+    sel.value = '';
+    sel.blur();
+  });
+  spots[0].fn();
+  $('helpBtn').addEventListener('click', toggleHelp);
+  $('helpClose').addEventListener('click', toggleHelp);
+  $('mapToggle').addEventListener('click', toggleMap);
+  $('infoToggle').addEventListener('click', () => $('info').classList.toggle('collapsed'));
+  if (coarse || innerWidth <= 720) {
+    $('info').classList.add('collapsed');
+    toggleMap();
+  }
+}
+
+function toggleMap() {
+  const collapsed = $('mapWrap').classList.toggle('collapsed');
+  $('mapToggle').textContent = collapsed ? 'Show' : 'Hide';
+}
+
+function toggleHelp() {
+  const h = $('help');
+  h.hidden = !h.hidden;
+  if (!h.hidden && document.pointerLockElement) document.exitPointerLock();
+}
+
+// ---------------------------------------------------------------- minimap
+const map = $('map');
+const mctx = map.getContext('2d');
+const MB = { X0: -135, X1: 315, Y0: -25, Y1: 510 };
+function mapScale() {
+  const w = map.width, h = map.height;
+  const s = Math.min(w / (MB.X1 - MB.X0), h / (MB.Y1 - MB.Y0));
+  const ox = (w - (MB.X1 - MB.X0) * s) / 2, oy = (h - (MB.Y1 - MB.Y0) * s) / 2;
+  return { s, ox, oy };
+}
+function mp(X, Y, k) { return [k.ox + (X - MB.X0) * k.s, k.oy + (MB.Y1 - Y) * k.s]; }
+function drawMap() {
+  const dpr = Math.min(devicePixelRatio, 2);
+  const rect = map.getBoundingClientRect();
+  if (map.width !== Math.round(rect.width * dpr)) {
+    map.width = Math.round(rect.width * dpr);
+    map.height = Math.round(rect.height * dpr);
+  }
+  const k = mapScale();
+  const g = mctx;
+  g.clearRect(0, 0, map.width, map.height);
+  g.fillStyle = 'rgba(31, 27, 22, 0.55)';
+  g.fillRect(0, 0, map.width, map.height);
+  g.beginPath();
+  COMPOUND.forEach(([X, Y], i) => { const [x, y] = mp(X, Y, k); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.closePath();
+  g.fillStyle = '#6f6650';
+  g.fill();
+  for (const it of R.minimap) {
+    if (!inEra(it, year)) continue;
+    g.strokeStyle = it.color;
+    g.fillStyle = it.color;
+    g.lineWidth = Math.max(1, k.s * 1.2);
+    if (it.type === 'poly' || it.type === 'wall') {
+      g.beginPath();
+      it.pts.forEach(([X, Y], i) => { const [x, y] = mp(X, Y, k); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+      g.closePath();
+      if (it.dash) { g.setLineDash([4 * dpr, 3 * dpr]); g.stroke(); g.setLineDash([]); }
+      else if (it.type === 'wall') { g.lineWidth = 3 * dpr; g.stroke(); }
+      else if (it.fill) { g.globalAlpha = 0.85; g.fill(); g.globalAlpha = 1; }
+      else { g.globalAlpha = 0.9; g.fill(); g.globalAlpha = 1; }
+    } else if (it.type === 'circle' || it.type === 'oct') {
+      const [x, y] = mp(it.X, it.Y, k);
+      g.beginPath();
+      if (it.type === 'oct') {
+        for (let i = 0; i <= 8; i++) {
+          const a = Math.PI / 8 + i * Math.PI / 4;
+          const px = x + Math.sin(a) * it.r * k.s, py = y + Math.cos(a) * it.r * k.s;
+          i ? g.lineTo(px, py) : g.moveTo(px, py);
+        }
+      } else g.arc(x, y, it.r * k.s, 0, Math.PI * 2);
+      g.fill();
+    } else if (it.type === 'minaret') {
+      const [x, y] = mp(it.X, it.Y, k);
+      g.fillRect(x - 2.5 * dpr, y - 2.5 * dpr, 5 * dpr, 5 * dpr);
+    } else if (it.type === 'gate') {
+      const [x, y] = mp(it.X, it.Y, k);
+      g.beginPath();
+      g.arc(x, y, 2 * dpr, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  // the viewer
+  const s = toSite(player.pos.x, player.pos.z);
+  const [px, py] = mp(Math.max(MB.X0, Math.min(MB.X1, s.X)), Math.max(MB.Y0, Math.min(MB.Y1, s.Y)), k);
+  const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw);
+  const ang = Math.atan2(-fz, fx);
+  g.save();
+  g.translate(px, py);
+  g.rotate(-ang);
+  g.fillStyle = 'rgba(255, 214, 120, 0.25)';
+  g.beginPath();
+  g.moveTo(0, 0);
+  g.arc(0, 0, 26 * dpr, -0.6, 0.6);
+  g.closePath();
+  g.fill();
+  g.fillStyle = '#ffd36a';
+  g.strokeStyle = '#1b160f';
+  g.lineWidth = 1.5 * dpr;
+  g.beginPath();
+  g.moveTo(8 * dpr, 0);
+  g.lineTo(-5 * dpr, 5 * dpr);
+  g.lineTo(-2 * dpr, 0);
+  g.lineTo(-5 * dpr, -5 * dpr);
+  g.closePath();
+  g.fill();
+  g.stroke();
+  g.restore();
+  // north arrow
+  g.fillStyle = '#f2e7cf';
+  g.font = `${11 * dpr}px "IBM Plex Mono", monospace`;
+  g.fillText('N ↑', 8 * dpr, 16 * dpr);
+}
+map.addEventListener('click', (e) => {
+  const rect = map.getBoundingClientRect();
+  const dpr = map.width / rect.width;
+  const k = mapScale();
+  const X = ((e.clientX - rect.left) * dpr - k.ox) / k.s + MB.X0;
+  const Y = MB.Y1 - ((e.clientY - rect.top) * dpr - k.oy) / k.s;
+  const w = toWorld(X, Y);
+  const y = groundAt(w.x, w.z, 60, walkables);
+  placeAt(X, Y, y, player.yaw, 0, false);
+});
+
+// ---------------------------------------------------------------- HUD
+let lastNear = null;
+function updateHUD() {
+  const s = toSite(player.pos.x, player.pos.z);
+  let best = null, bd = Infinity;
+  for (const l of R.landmarks) {
+    if (!inEra(l, year)) continue;
+    if (Math.abs(player.pos.y - l.h) > (l.h < 0 ? 6 : 14) && !player.fly) continue;
+    const d = Math.hypot(s.X - l.X, s.Y - l.Y) / l.r;
+    if (d < 1 && d < bd) { bd = d; best = l; }
+  }
+  if (player.fly && player.pos.y > 60) best = null;
+  if (best !== lastNear) {
+    lastNear = best;
+    const el = $('near');
+    if (!best) { el.hidden = true; return; }
+    el.hidden = false;
+    $('nearName').textContent = best.name;
+    $('nearAr').textContent = best.ar;
+    $('nearBuilt').textContent = best.built;
+    $('nearText').textContent = best.text;
+  }
+}
+
+// ---------------------------------------------------------------- loop
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+async function start() {
+  resize();
+  try {
+    await Promise.race([
+      Promise.all([document.fonts.load('48px "Amiri"'), document.fonts.ready]),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]);
+  } catch (_) { /* fall back to system Arabic font */ }
+  const T = makeTextures();
+  for (const t of Object.values(T)) t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  buildWorld(scene, T);
+  scene.updateMatrixWorld(true);
+  scene.traverse((o) => {
+    if (o.isMesh && !o.isInstancedMesh && (o.userData.walk || o.userData.collide)) {
+      o.geometry.computeBoundingSphere();
+      o.userData.bs = o.geometry.boundingSphere.clone().applyMatrix4(o.matrixWorld);
+    }
+  });
+  buildUI();
+  setYear(2026);
+  $('loading').hidden = true;
+  const clock = new THREE.Clock();
+  let mapT = 0;
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(clock.getDelta(), 0.05);
+    update(dt);
+    renderer.render(scene, camera);
+    mapT += dt;
+    if (mapT > 0.1) {
+      mapT = 0;
+      if (!$('mapWrap').classList.contains('collapsed')) drawMap();
+      updateHUD();
+      const st = toSite(player.pos.x, player.pos.z);
+      $('coords').textContent = `${Math.round(st.X)} E · ${Math.round(st.Y)} N · ${player.pos.y.toFixed(1)} m`;
+    }
+  });
+  // debugging hook: step the walk physics with keys held, without rendering
+  const simulate = (held, seconds) => {
+    held.forEach((k) => keys.add(k));
+    for (let t = 0; t < seconds; t += 1 / 60) update(1 / 60);
+    held.forEach((k) => keys.delete(k));
+    const s = toSite(player.pos.x, player.pos.z);
+    return [+s.X.toFixed(2), +s.Y.toFixed(2), +player.pos.y.toFixed(2)];
+  };
+  window.__aqsa = { setYear, placeAt, player, scene, camera, renderer, R, simulate };
+}
+
+start().catch((err) => {
+  console.error(err);
+  $('loadingText').textContent = 'The 3D view could not start: ' + err.message;
+});
+
+</script>
+</body>
+</html>
